@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.1'
-#       jupytext_version: 0.8.3
+#       jupytext_version: 0.8.5
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -27,7 +27,7 @@
 # %% [markdown]
 # # Numerical Solution of the Ramsey/Cass-Koopmans model
 #
-# ## Mateo Velásquez-Giraldo
+# ## [Mateo Velásquez-Giraldo](https://github.com/Mv77)
 #
 # ## (adapted from Alexander Tabarrok and Christopher D. Carroll)
 #
@@ -44,17 +44,13 @@
 # A formal treatment of the exact version of the model implemented in this notebook can be found in [Christopher D. Carroll's graduate macroeconomics lecture notes](http://www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyCassKoopmans/).
 #
 
-# %% {"code_folding": [0]}
+# %% {"code_folding": []}
 # Preamble
 import numpy as np
 import matplotlib.pyplot as plt
 
 from scipy.integrate import odeint
 from scipy import interpolate
-
-# Plot formatting
-#plt.style.use('seaborn-darkgrid')
-#palette = plt.get_cmap('Dark2')
 
 # %% {"code_folding": []}
 # Class implementation
@@ -65,7 +61,15 @@ class RCKmod:
     """
     
     def __init__(self,rho,alpha,theta,xi,delta,phi):
-        
+        """
+        Inputs:
+        - rho:   relative risk aversion coefficient for CRRA utility.
+        - alpha: capital's share of production in Cobb-Douglas output function.
+        - theta: time preference/discount rate.
+        - xi:    population growth rate.
+        - delta: capital depreciation rate.
+        - phi:   labor productivity growth rate.        
+        """
         # Assign parameter values
         self.rho = rho
         self.alpha = alpha
@@ -219,35 +223,35 @@ class RCKmod:
 #
 # The model needs to be solved in order to find the consumption rule or 'saddle path'.
 
-# %%
+# %% {"code_folding": []}
 # Create and solve model
-model = RCKmod(rho = 2,alpha = 0.3,theta = 0.02,xi = 0.01,delta = 0.08,phi = 0.03)
-model.solve()
+RCKmodExample = RCKmod(rho = 2,alpha = 0.3,theta = 0.02,xi = 0.01,delta = 0.08,phi = 0.03)
+RCKmodExample.solve()
 
 # Test the consumption rule
-print('Consumption at k = %1.2f is c = %1.2f' % (model.kss/2, model.cFunc(model.kss/2)))
+print('Consumption at k = %1.2f is c = %1.2f' % (RCKmodExample.kss/2, RCKmodExample.cFunc(RCKmodExample.kss/2)))
 
 # %% [markdown]
 # The model's phase diagram can then be generated.
 
 # %%
-model.phase_diagram(arrows= True, n_arrows = 12)
+RCKmodExample.phase_diagram(arrows= True, n_arrows = 12)
 
 # %% [markdown]
 # The class can also be used to simulate the dynamics of capital given a starting point.
 
-# %%
+# %% {"code_folding": []}
 # Create grid of time points
 t = np.linspace(0,100,100)
 
 # Find capital dynamics at the desired time points and with
 # a given starting capital
 k0 = 4
-k = model.k_dynamics(k0,t)
+k = RCKmodExample.k_dynamics(k0,t)
 
 # Plot
 plt.plot(t,k)
-plt.axhline(y = model.kss,linestyle = '--',color = 'k', label = '$\\bar{k}$')
+plt.axhline(y = RCKmodExample.kss,linestyle = '--',color = 'k', label = '$\\bar{k}$')
 plt.title('Capital')
 plt.xlabel('Time')
 plt.legend()
@@ -256,17 +260,14 @@ plt.show()
 # %% [markdown]
 # With capital, the consumption rule can be used to find the dynamics of consumption.
 
-# %%
+# %% {"code_folding": []}
 # Find consumption
-c = model.cFunc(k)
+c = RCKmodExample.cFunc(k)
 
 # Plot
 plt.plot(t,c)
-plt.axhline(y = model.css,linestyle = '--',color = 'k', label = '$\\bar{c}$')
+plt.axhline(y = RCKmodExample.css,linestyle = '--',color = 'k', label = '$\\bar{c}$')
 plt.title('Consumption')
 plt.xlabel('Time')
 plt.legend()
 plt.show()
-
-# %%
-    
