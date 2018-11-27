@@ -5,7 +5,7 @@ and other purposes where public availability of the notebook is convenient
 
 ## Running with MyBinder 
 
-The notebooks should be launchable by [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/econ-ark/Notebooks/master)
+The notebooks should be launchable by [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/llorracc/Notebooks/master)
 
 ## Local installation
 
