@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.1'
-#       jupytext_version: 0.8.5
+#       jupytext_version: 0.8.3
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -27,32 +27,25 @@
 # %% [markdown]
 # # Numerical Solution of the Ramsey/Cass-Koopmans model
 #
-# ## [Mateo Velásquez-Giraldo](https://github.com/Mv77)
-#
-# ## (adapted from Alexander Tabarrok and Christopher D. Carroll)
-#
-#
-#
-#
-#
+# ## by [Mateo Velásquez-Giraldo](https://github.com/Mv77)
 #
 # This notebook implements a class representing Ramsey's growth model. Current utilities include:
-# - Numerically finding the consumption rule through 'time elimination', as implemented by Alexander Tabarrok and Christopher D. Carroll's [Wolfram Mathematica notebook](www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyNumericSolve.zip).
+# - Numerically finding the consumption rule through 'time elimination', as originally implemented by Alexander Tabarrok and updated by Christopher D. Carroll in this [Wolfram Mathematica notebook](www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyNumericSolve.zip)
 # - Drawing the phase diagram of the model.
 # - Simulating optimal capital dynamics from a given starting point.
 #
 # A formal treatment of the exact version of the model implemented in this notebook can be found in [Christopher D. Carroll's graduate macroeconomics lecture notes](http://www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyCassKoopmans/).
 #
 
-# %% {"code_folding": []}
-# Preamble
+# %% {"code_folding": [0]}
+# Setup
 import numpy as np
 import matplotlib.pyplot as plt
 
 from scipy.integrate import odeint
 from scipy import interpolate
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Class implementation
 
 class RCKmod:
