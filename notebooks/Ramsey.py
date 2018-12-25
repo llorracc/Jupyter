@@ -37,17 +37,18 @@
 # A formal treatment of the exact version of the model implemented in this notebook can be found in [Christopher D. Carroll's graduate macroeconomics lecture notes](http://www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyCassKoopmans/).
 #
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Setup
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
 
 from scipy.integrate import odeint
 from scipy import interpolate
 
 from numpy import linalg as LA
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Class implementation
 
 class RCKmod:
@@ -264,10 +265,10 @@ class RCKmod:
 #
 # The model needs to be solved in order to find the consumption rule or 'saddle path'.
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Create and solve model
 RCKmodExample = RCKmod(rho = 2,alpha = 0.3,theta = 0.02,xi = 0.01,delta = 0.08,phi = 0.03)
-RCKmodExample.solve(lin_approx = False)
+RCKmodExample.solve()
 
 # Test the consumption rule
 print('Consumption at k = %1.2f is c = %1.2f' % (RCKmodExample.kss/2, RCKmodExample.cFunc(RCKmodExample.kss/2)))
@@ -281,7 +282,7 @@ RCKmodExample.phase_diagram(arrows= True, n_arrows = 12)
 # %% [markdown]
 # The class can also be used to simulate the dynamics of capital given a starting point.
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Create grid of time points
 t = np.linspace(0,100,100)
 
@@ -301,7 +302,7 @@ plt.show()
 # %% [markdown]
 # With capital, the consumption rule can be used to find the dynamics of consumption.
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Find consumption
 c = RCKmodExample.cFunc(k)
 
@@ -312,6 +313,27 @@ plt.title('Consumption')
 plt.xlabel('Time')
 plt.legend()
 plt.show()
+
+# %% [markdown]
+# # Why use the saddle path slope?
+#
+# The following example shows an instance in which the solution method with the default disturbance size succeeds when using the saddle path slope, and fails when it is not used.
+
+# %% {"code_folding": []}
+# We create a model with a high value for rho
+RCKmodExample2 = RCKmod(rho = 12,alpha = 0.3,theta = 0.02,xi = 0.01,delta = 0.08,phi = 0.03)
+
+# %% {"code_folding": []}
+# Solving with the saddle path slope approximation generates the
+# usual phase diagram
+RCKmodExample2.solve(lin_approx = True)
+RCKmodExample2.phase_diagram(arrows= True, n_arrows = 12)
+
+# %% {"code_folding": []}
+# However, not using the approximation generates a downward-sloping
+# consumption rule.
+RCKmodExample2.solve(lin_approx = False)
+RCKmodExample2.phase_diagram(arrows= True, n_arrows = 12)
 
 # %% [markdown]
 # # Appendix: finding the slope of the saddle path at the steady state
