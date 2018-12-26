@@ -37,7 +37,7 @@
 # A formal treatment of the exact version of the model implemented in this notebook can be found in [Christopher D. Carroll's graduate macroeconomics lecture notes](http://www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyCassKoopmans/).
 #
 
-# %% {"code_folding": [0]}
+# %% {"code_folding": []}
 # Setup
 import numpy as np
 import matplotlib.pyplot as plt
