@@ -21,7 +21,7 @@
 #     name: python
 #     nbconvert_exporter: python
 #     pygments_lexer: ipython3
-#     version: 3.6.7
+#     version: 3.7.1
 # ---
 
 # %% [markdown]
@@ -41,7 +41,6 @@
 # Setup
 import numpy as np
 import matplotlib.pyplot as plt
-import copy
 
 from scipy.integrate import odeint
 from scipy import interpolate
@@ -98,7 +97,8 @@ class RCKmod:
         """
         Consumption differential equation
         """
-        dc = c/self.rho*(self.alpha*k**(self.alpha - 1) - self.theta - (self.xi + self.delta) -self.rho*self.phi)
+        dc = c/self.rho*(self.alpha*k**(self.alpha - 1) - self.theta -\
+                         (self.xi + self.delta) -self.rho*self.phi)
         return(dc)
     
     def dkdt(self,c,k):
@@ -117,7 +117,9 @@ class RCKmod:
     
     def solve(self, eps = 10**(-8), npoints = 400, lin_approx = True):
         """
-        Solves for the model's consumption rule through the time elimination method.
+        Solves for the model's consumption rule through the time elimination
+        method.
+        
         Parameters:
         - eps:     disturbance used to prevent dc/dk from becoming 0/0 at
                    the steady state value of capital.
@@ -129,18 +131,17 @@ class RCKmod:
         k_above = np.linspace(self.kss+eps,self.kmax,npoints)
         k = np.concatenate((k_below,k_above)).flatten()
         
-        if lin_approx:    
-
-            # Solve for c on each side of the steady state capital,
-            # using the slope of the saddle path to approximate initial
+        # Solve for c on each side of the steady state capital,
+        if lin_approx:
+            # Using the slope of the saddle path to approximate initial
             # conditions
-            c_below = odeint(self.dcdk, self.css - eps*self.slope_ss(), k_below)
-            c_above = odeint(self.dcdk, self.css + eps*self.slope_ss(), k_above)
+            c_below = odeint(self.dcdk,
+                             self.css - eps*self.slope_ss(), k_below)
+            c_above = odeint(self.dcdk,
+                             self.css + eps*self.slope_ss(), k_above)
             
         else:
-
-            # Solve for c on each side of the steady state capital,
-            # assuming a slope of 1 to approximate initial conditions
+            # Assuming a slope of 1 to approximate initial conditions
             c_below = odeint(self.dcdk, self.css - eps, k_below)
             c_above = odeint(self.dcdk, self.css + eps, k_above)
         
@@ -190,7 +191,8 @@ class RCKmod:
         # Plot k0 locus
         plt.plot(k,self.k0locus(k),label = '$\\dot{k}=0$ locus')
         # Plot c0 locus
-        plt.axvline(x = self.kss,linestyle = '--', label = '$\\dot{c}=0$ locus')
+        plt.axvline(x = self.kss,linestyle = '--',
+                    label = '$\\dot{c}=0$ locus')
         # Plot saddle path
         plt.plot(k,self.cFunc(k), label = 'Saddle path')
         # Plot steady state
@@ -232,9 +234,11 @@ class RCKmod:
         
         J = np.array([[1/self.rho*(self.alpha*k**(self.alpha - 1)-\
                                    self.theta-self.xi-self.delta-self.phi),\
-                       c/self.rho*self.alpha*(self.alpha - 1)*k**(self.alpha - 2)],
+                       c/self.rho*\
+                       self.alpha*(self.alpha - 1)*k**(self.alpha - 2)],
                       [-1,
-                       self.alpha*k**(self.alpha-1) - (self.phi + self.xi +self.delta)]])
+                       self.alpha*k**(self.alpha-1) -\
+                       (self.phi + self.xi +self.delta)]])
         
         return(J)
     
@@ -267,11 +271,13 @@ class RCKmod:
 
 # %% {"code_folding": [0]}
 # Create and solve model
-RCKmodExample = RCKmod(rho = 2,alpha = 0.3,theta = 0.02,xi = 0.01,delta = 0.08,phi = 0.03)
+RCKmodExample = RCKmod(rho = 2,alpha = 0.3,theta = 0.02,xi = 0.01,
+                       delta = 0.08,phi = 0.03)
 RCKmodExample.solve()
 
 # Test the consumption rule
-print('Consumption at k = %1.2f is c = %1.2f' % (RCKmodExample.kss/2, RCKmodExample.cFunc(RCKmodExample.kss/2)))
+print('Consumption at k = %1.2f is c = %1.2f'\
+      % (RCKmodExample.kss/2, RCKmodExample.cFunc(RCKmodExample.kss/2)))
 
 # %% [markdown]
 # The model's phase diagram can then be generated.
@@ -319,17 +325,18 @@ plt.show()
 #
 # The following example shows an instance in which the solution method with the default disturbance size succeeds when using the saddle path slope, and fails when it is not used.
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # We create a model with a high value for rho
-RCKmodExample2 = RCKmod(rho = 12,alpha = 0.3,theta = 0.02,xi = 0.01,delta = 0.08,phi = 0.03)
+RCKmodExample2 = RCKmod(rho = 12,alpha = 0.3,theta = 0.02,xi = 0.01,
+                        delta = 0.08,phi = 0.03)
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Solving with the saddle path slope approximation generates the
 # usual phase diagram
 RCKmodExample2.solve(lin_approx = True)
 RCKmodExample2.phase_diagram(arrows= True, n_arrows = 12)
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # However, not using the approximation generates a downward-sloping
 # consumption rule.
 RCKmodExample2.solve(lin_approx = False)
