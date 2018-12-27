@@ -177,7 +177,7 @@ class RCKmod:
         """
         return(self.output(k) - (self.phi + self.xi + self.delta)*k)
         
-    def phase_diagram(self, npoints = 200, arrows = False, n_arrows = 5):
+    def phase_diagram(self, npoints = 200, arrows = False, n_arrows = 5, labels = True, legend = True):
         """
         Plots the model's phase diagram.
         - npoints:  number of ticks in the k axis.
@@ -187,6 +187,9 @@ class RCKmod:
         """
         
         k = np.linspace(0.01,self.kmax,npoints)
+        
+        # Create plot
+        plt.figure()
         
         # Plot k0 locus
         plt.plot(k,self.k0locus(k),label = '$\\dot{k}=0$ locus')
@@ -217,11 +220,12 @@ class RCKmod:
             plt.quiver(X, Y, dk, dc, M, pivot='mid', alpha = 0.3)
         
         # Labels
-        plt.title('Phase diagram and consumption rule\n(normalized by efficiency units)')
-        plt.xlabel('k')
-        plt.ylabel('c')
-        plt.legend()
-        plt.show()
+        if labels:
+            plt.title('Phase diagram and consumption rule\n(normalized by efficiency units)')
+            plt.xlabel('k')
+            plt.ylabel('c')
+        if legend:
+            plt.legend()
         
     
     def J_matrix(self,c,k):
@@ -298,6 +302,7 @@ k0 = 4
 k = RCKmodExample.k_dynamics(k0,t)
 
 # Plot
+plt.figure()
 plt.plot(t,k)
 plt.axhline(y = RCKmodExample.kss,linestyle = '--',color = 'k',
             label = '$\\bar{k}$')
@@ -314,6 +319,7 @@ plt.show()
 c = RCKmodExample.cFunc(k)
 
 # Plot
+plt.figure()
 plt.plot(t,c)
 plt.axhline(y = RCKmodExample.css,linestyle = '--',color = 'k',
             label = '$\\bar{c}$')
@@ -474,6 +480,7 @@ colors = ['red','blue']
 g = [0.01,0.1]
 npoints = 100
 
+plt.figure()
 for i in range(len(g)):
     
     # Create model
@@ -504,6 +511,48 @@ for i in range(len(g)):
 
 # Labels
 plt.title('$\\dot{c}/c = 0$ and $\\dot{k} = 0$ Loci')
+plt.xlabel('k')
+plt.ylabel('c')
+plt.show()
+
+# %% {"code_folding": [0]}
+# Figure 2
+npoints = 100
+
+# Create and solve model
+RCKmodExample = RCKmod(rho = 2,alpha = 0.3,theta = 0.02,xi = 0.01,
+                       delta = 0.08,phi = 0.03)
+RCKmodExample.solve()
+pd = RCKmodExample.phase_diagram(arrows= True, n_arrows = 12, labels = False)
+
+# Set initial k for off-path trajectories
+k0 = RCKmodExample.kss * 0.35
+
+# Find values of c: one too high, one too low
+c_high = RCKmodExample.cFunc(k0) * 1.25
+c_low = RCKmodExample.cFunc(k0) * 0.75
+init_cs = [c_low, c_high]
+
+# Trajectories with high consumption values become problematic much faster
+# than those with low consumption, thus, different time intervals are used
+t_final = [20,3.4602]
+
+for i in range(len(init_cs)):
+        
+    # Create dynamic system for c and k
+    dck_dt = lambda ck, t : [RCKmodExample.dcdt(ck[0],ck[1]),
+                             RCKmodExample.dkdt(ck[0],ck[1])]
+    
+    # Create time vector
+    t = np.linspace(0,t_final[i],npoints)
+    
+    # Solve for c and k
+    ck = odeint(dck_dt, [init_cs[i], k0], t)
+    
+    # Plot the trajectory in k-c space
+    plt.plot(ck[:,1], ck[:,0], 'k')
+    
+plt.title('Transition to the Steady State')
 plt.xlabel('k')
 plt.ylabel('c')
 plt.show()
