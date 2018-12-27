@@ -37,7 +37,7 @@
 # A formal treatment of the exact version of the model implemented in this notebook can be found in [Christopher D. Carroll's graduate macroeconomics lecture notes](http://www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyCassKoopmans/).
 #
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Setup
 import numpy as np
 import matplotlib.pyplot as plt
@@ -299,7 +299,8 @@ k = RCKmodExample.k_dynamics(k0,t)
 
 # Plot
 plt.plot(t,k)
-plt.axhline(y = RCKmodExample.kss,linestyle = '--',color = 'k', label = '$\\bar{k}$')
+plt.axhline(y = RCKmodExample.kss,linestyle = '--',color = 'k',
+            label = '$\\bar{k}$')
 plt.title('Capital')
 plt.xlabel('Time')
 plt.legend()
@@ -314,7 +315,8 @@ c = RCKmodExample.cFunc(k)
 
 # Plot
 plt.plot(t,c)
-plt.axhline(y = RCKmodExample.css,linestyle = '--',color = 'k', label = '$\\bar{c}$')
+plt.axhline(y = RCKmodExample.css,linestyle = '--',color = 'k',
+            label = '$\\bar{c}$')
 plt.title('Consumption')
 plt.xlabel('Time')
 plt.legend()
@@ -343,7 +345,7 @@ RCKmodExample2.solve(lin_approx = False)
 RCKmodExample2.phase_diagram(arrows= True, n_arrows = 12)
 
 # %% [markdown]
-# # Appendix: finding the slope of the saddle path at the steady state
+# # Appendix 1: finding the slope of the saddle path at the steady state
 #
 # From the solution of the model, we know that the system of differential equations that describes the dynamics of $c$ and $k$ is 
 #
@@ -460,3 +462,48 @@ RCKmodExample2.phase_diagram(arrows= True, n_arrows = 12)
 # Note that, given $\lambda_1<0$, as $t \rightarrow \infty$, $e^{\lambda_1 t}\rightarrow 0$ and $[\hat{c}_t,\hat{k}_t] = [0,0]$ which is precisely what we require.
 #
 # From the previous solution, we know that in our linear approximation of the dynamic system around $[\hat{c}_t, \hat{k}_t] = [0,0]$, the ratio $\hat{c}_t/\hat{k}_t$ will be the constant $u_{1,1}/u_{1,2}$. Therefore, we can conclude that the slope of the tangent to the saddle path (in k-c coordinates) at the steady state capital $\bar{k}$ will be exactly $u_{1,1}/u_{1,2}$ where $\mathbf{u_1}$ is the eigenvector associated with the negative eigenvalue of the Jacobian matrix J.
+
+# %% [markdown]
+# # Appendix 2: generating Christopher D. Carroll's lecture notes figures.
+
+# %% {"code_folding": [0]}
+# Figure 1
+
+labels = ['$\phi$ low','$\phi$ high']
+colors = ['red','blue']
+g = [0.01,0.1]
+npoints = 100
+
+for i in range(len(g)):
+    
+    # Create model
+    RCKmodExample = RCKmod(rho = 2,alpha = 0.3,theta = 0.02,xi = 0.01,
+                           delta = 0.08,phi = g[i])
+    
+    # K range
+    k = np.linspace(0,RCKmodExample.kmax,npoints)
+        
+    # Plot k0 locus
+    plt.plot(k,RCKmodExample.k0locus(k),color = colors[i])
+    
+    k_dummy = (RCKmodExample.kmax + RCKmodExample.kss) / 2
+    
+    plt.annotate('$\\dot{k}=0$, ' + labels[i],
+                 xy=(k_dummy, RCKmodExample.k0locus(k_dummy)),
+                 xytext=(k_dummy, RCKmodExample.k0locus(k_dummy)*1.3),
+                 arrowprops = dict(color = 'black', width = 0.05,
+                                   headwidth = 5, headlength = 7))
+    # Plot c0 locus
+    plt.axvline(x = RCKmodExample.kss,linestyle = '--',color = colors[i])
+    
+    plt.annotate('$\\dot{c} = 0$, ' + labels[i],
+                 xy=(RCKmodExample.kss, RCKmodExample.css/3),
+                 xytext=(RCKmodExample.kss + 2, RCKmodExample.css/3),
+                 arrowprops = dict(color = 'black', width = 0.05,
+                                   headwidth = 5, headlength = 7))
+
+# Labels
+plt.title('$\\dot{c}/c = 0$ and $\\dot{k} = 0$ Loci')
+plt.xlabel('k')
+plt.ylabel('c')
+plt.show()
