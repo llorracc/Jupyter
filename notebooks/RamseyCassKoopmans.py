@@ -393,3 +393,70 @@ RCKmodExample2.phase_diagram(arrows= True, n_arrows = 12)
 # \end{align}
 #
 # Given the saddle-path stability of the system, $J(c_{ss},k_{ss})$ will have a positive and a negative eigenvalue. The slope of the saddle path at the steady state capital is given by the eigenvector associated with the negative eigenvalue.
+#
+# To understand why, rewrite the ODE system as
+#
+# \begin{align}
+# \begin{bmatrix}
+# \dot{c_t}\\
+# \dot{k_t}
+# \end{bmatrix}
+# \approx
+# \begin{bmatrix}
+# f(\bar{c},\bar{k})\\
+# g(\bar{c},\bar{k})
+# \end{bmatrix}+ J(\bar{c},\bar{k})\times
+# \begin{bmatrix}
+# c_t - \bar{c}\\
+# k_t - \bar{k}
+# \end{bmatrix}.
+# \end{align}
+#
+# Since $(\bar{c},\bar{k})$ are the steady state values, we know $f(\bar{c},\bar{k}) = g(\bar{c},\bar{k}) = 0$. Now define $\hat{c} = c - \bar{c}$ and $\hat{k} = k - \bar{k}$, and notice $\dot{c} = \dot{\hat{c}}$ and $\dot{k} = \dot{\hat{k}}$. With these facts and writting $J(\bar{c},\bar{k}) = J$ to reduce clutter, we have
+#
+# \begin{align}
+# \begin{bmatrix}
+# \dot{\hat{c}_t}\\
+# \dot{\hat{k}_t}
+# \end{bmatrix}
+# \approx
+# J\times
+# \begin{bmatrix}
+# \hat{c}_t\\
+# \hat{k}_t
+# \end{bmatrix},
+# \end{align}
+#
+# which is a first-order homogeneous ODE system (see ['Matrix differential equation' in Wikipedia](https://en.wikipedia.org/wiki/Matrix_differential_equation)). As discussed in the Wikipedia entry, these systems have solutions of the form
+#
+# \begin{align}
+# \begin{bmatrix}
+# \hat{c}_t\\
+# \hat{k}_t
+# \end{bmatrix}
+# =
+# c_1 e^{\lambda_1 t}\mathbf{u_1} + c_2 e^{\lambda_2 t}\mathbf{u_2}
+# \end{align}
+#
+# where $c_1$ and $c_2$ are constants, $\lambda_1$ and $\lambda_2$ are the eigenvalues of $J$, and $\mathbf{u_1}$ and $\mathbf{u_2}$ are their associated eigenvectors.
+#
+# It can be shown that (for all reasonable parameter values) $J$ has a positive and a negative eigenvalue. Thus, assume $\lambda_1 < 0$ and $\lambda_2 > 0$.
+#
+# We are interested in solutions that approximate to the steady state ($\hat{c}_t = \hat{k}_t =0$) as $t \rightarrow \infty$. For these solutions, we must set $c_2 = 0$: else, given $\lambda_2 > 0$, $e^{\lambda_2 t}\rightarrow \infty$ as $t \rightarrow \infty$ and the system diverges. Therefore, we are left with a solution of the type
+#
+# \begin{align}
+# \begin{bmatrix}
+# \hat{c}_t\\
+# \hat{k}_t
+# \end{bmatrix}
+# =
+# c_1 e^{\lambda_1 t}\mathbf{u_1} =
+# \begin{bmatrix}
+# c_1 e^{\lambda_1 t} u_{1,1}\\
+# c_1 e^{\lambda_1 t} u_{1,2}
+# \end{bmatrix}.
+# \end{align}
+#
+# Note that, given $\lambda_1<0$, as $t \rightarrow \infty$, $e^{\lambda_1 t}\rightarrow 0$ and $[\hat{c}_t,\hat{k}_t] = [0,0]$ which is precisely what we require.
+#
+# From the previous solution, we know that in our linear approximation of the dynamic system around $[\hat{c}_t, \hat{k}_t] = [0,0]$, the ratio $\hat{c}_t/\hat{k}_t$ will be the constant $u_{1,1}/u_{1,2}$. Therefore, we can conclude that the slope of the tangent to the saddle path (in k-c coordinates) at the steady state capital $\bar{k}$ will be exactly $u_{1,1}/u_{1,2}$ where $\mathbf{u_1}$ is the eigenvector associated with the negative eigenvalue of the Jacobian matrix J.
