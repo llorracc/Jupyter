@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.1'
-#       jupytext_version: 0.8.5
+#       jupytext_version: 0.8.3
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -21,11 +21,34 @@
 #     name: python
 #     nbconvert_exporter: python
 #     pygments_lexer: ipython3
-#     version: 3.7.1
+#     version: 3.6.6
+#   varInspector:
+#     cols:
+#       lenName: 16
+#       lenType: 16
+#       lenVar: 40
+#     kernels_config:
+#       python:
+#         delete_cmd_postfix: ''
+#         delete_cmd_prefix: 'del '
+#         library: var_list.py
+#         varRefreshCmd: print(var_dic_list())
+#       r:
+#         delete_cmd_postfix: ') '
+#         delete_cmd_prefix: rm(
+#         library: var_list.r
+#         varRefreshCmd: 'cat(var_dic_list()) '
+#     types_to_exclude:
+#     - module
+#     - function
+#     - builtin_function_or_method
+#     - instance
+#     - _Feature
+#     window_display: false
 # ---
 
 # %% [markdown]
-# # Numerical Solution of the Ramsey/Cass-Koopmans model
+# # Numerical Solution of Ramsey/Cass-Koopmans model
 #
 # ## by [Mateo Velásquez-Giraldo](https://github.com/Mv77)
 #
@@ -34,7 +57,7 @@
 # - Drawing the phase diagram of the model.
 # - Simulating optimal capital dynamics from a given starting point.
 #
-# A formal treatment of the exact version of the model implemented in this notebook can be found in [Christopher D. Carroll's graduate macroeconomics lecture notes](http://www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyCassKoopmans/).
+# A formal treatment of the exact version of the model implemented in this notebook can be found in [Christopher Carroll's graduate macroeconomics lecture notes](http://www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyCassKoopmans/).
 #
 
 # %% {"code_folding": [0]}
@@ -47,8 +70,36 @@ from scipy import interpolate
 
 from numpy import linalg as LA
 
+# This is a jupytext paired notebook 
+# which can be executed from a terminal command line via "ipython [notebookname].py"
+# But a terminal does not permit inline figures, so we need to test jupyter vs terminal
+# Google "how can I check if code is executed in the ipython notebook"
+def in_ipynb():
+    try:
+        if str(type(get_ipython())) == "<class 'ipykernel.zmqshell.ZMQInteractiveShell'>":
+            return True
+        else:
+            return False
+    except NameError:
+        return False
+
+# Determine whether to make the figures inline (for spyder or jupyter)
+# vs whatever is the automatic setting that will apply if run from the terminal
+if in_ipynb():
+    # %matplotlib inline generates a syntax error when run from the shell
+    # so do this instead
+    get_ipython().run_line_magic('matplotlib', 'inline') 
+else:
+    get_ipython().run_line_magic('matplotlib', 'auto') 
+
+# Import the plot-figure library matplotlib
+
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rcParams['text.usetex'] = True
+
 # %% {"code_folding": [0]}
-# Class implementation
+# Implement the RCKmod class
 
 class RCKmod:
     """
@@ -115,7 +166,7 @@ class RCKmod:
         """
         return(self.dcdt(c,k)/self.dkdt(c,k))
     
-    def solve(self, eps = 10**(-8), npoints = 400, lin_approx = True):
+    def solve(self, eps = 10**(-8), npoints = 400):
         """
         Solves for the model's consumption rule through the time elimination
         method.
@@ -132,18 +183,9 @@ class RCKmod:
         k = np.concatenate((k_below,k_above)).flatten()
         
         # Solve for c on each side of the steady state capital,
-        if lin_approx:
-            # Using the slope of the saddle path to approximate initial
-            # conditions
-            c_below = odeint(self.dcdk,
-                             self.css - eps*self.slope_ss(), k_below)
-            c_above = odeint(self.dcdk,
-                             self.css + eps*self.slope_ss(), k_above)
-            
-        else:
-            # Assuming a slope of 1 to approximate initial conditions
-            c_below = odeint(self.dcdk, self.css - eps, k_below)
-            c_above = odeint(self.dcdk, self.css + eps, k_above)
+        # Assuming a slope of 1 to approximate initial conditions
+        c_below = odeint(self.dcdk, self.css - eps, k_below)
+        c_above = odeint(self.dcdk, self.css + eps, k_above)
         
         c = np.concatenate((c_below,c_above)).flatten()
         
@@ -329,28 +371,6 @@ plt.legend()
 plt.show()
 
 # %% [markdown]
-# # Why use the saddle path slope?
-#
-# The following example shows an instance in which the solution method with the default disturbance size succeeds when using the saddle path slope, and fails when it is not used.
-
-# %% {"code_folding": [0]}
-# We create a model with a high value for rho
-RCKmodExample2 = RCKmod(rho = 12,alpha = 0.3,theta = 0.02,xi = 0.01,
-                        delta = 0.08,phi = 0.03)
-
-# %% {"code_folding": [0]}
-# Solving with the saddle path slope approximation generates the
-# usual phase diagram
-RCKmodExample2.solve(lin_approx = True)
-RCKmodExample2.phase_diagram(arrows= True, n_arrows = 12)
-
-# %% {"code_folding": [0]}
-# However, not using the approximation generates a downward-sloping
-# consumption rule.
-RCKmodExample2.solve(lin_approx = False)
-RCKmodExample2.phase_diagram(arrows= True, n_arrows = 12)
-
-# %% [markdown]
 # # Appendix 1: finding the slope of the saddle path at the steady state
 #
 # From the solution of the model, we know that the system of differential equations that describes the dynamics of $c$ and $k$ is 
@@ -448,9 +468,9 @@ RCKmodExample2.phase_diagram(arrows= True, n_arrows = 12)
 #
 # where $c_1$ and $c_2$ are constants, $\lambda_1$ and $\lambda_2$ are the eigenvalues of $J$, and $\mathbf{u_1}$ and $\mathbf{u_2}$ are their associated eigenvectors.
 #
-# It can be shown that (for all reasonable parameter values) $J$ has a positive and a negative eigenvalue. Thus, assume $\lambda_1 < 0$ and $\lambda_2 > 0$.
+# For this model, it can be shown that (for all reasonable parameter values) $J$ has a positive and a negative eigenvalue. Thus, assume $\lambda_1 < 0$ and $\lambda_2 > 0$.
 #
-# We are interested in solutions that approximate to the steady state ($\hat{c}_t = \hat{k}_t =0$) as $t \rightarrow \infty$. For these solutions, we must set $c_2 = 0$: else, given $\lambda_2 > 0$, $e^{\lambda_2 t}\rightarrow \infty$ as $t \rightarrow \infty$ and the system diverges. Therefore, we are left with a solution of the type
+# We are interested in solutions that approximate to the steady state ($\hat{c}_t = \hat{k}_t =0$) as $t \rightarrow \infty$. For these solutions, we must set $u_2 = 0$: else, given $\lambda_2 > 0$, $e^{\lambda_2 t}\rightarrow \infty$ as $t \rightarrow \infty$ and the system diverges. Therefore, we are left with a solution of the type
 #
 # \begin{align}
 # \begin{bmatrix}
@@ -470,10 +490,10 @@ RCKmodExample2.phase_diagram(arrows= True, n_arrows = 12)
 # From the previous solution, we know that in our linear approximation of the dynamic system around $[\hat{c}_t, \hat{k}_t] = [0,0]$, the ratio $\hat{c}_t/\hat{k}_t$ will be the constant $u_{1,1}/u_{1,2}$. Therefore, we can conclude that the slope of the tangent to the saddle path (in k-c coordinates) at the steady state capital $\bar{k}$ will be exactly $u_{1,1}/u_{1,2}$ where $\mathbf{u_1}$ is the eigenvector associated with the negative eigenvalue of the Jacobian matrix J.
 
 # %% [markdown]
-# # Appendix 2: generating Christopher D. Carroll's lecture notes figures.
+# # Appendix 2: Figures for Christopher D. Carroll's lecture notes
 
-# %% {"code_folding": [0]}
-# Figure 1
+# %% {"code_folding": [0, 8]}
+# Figure RamseySSPlot
 
 labels = ['$\phi$ low','$\phi$ high']
 colors = ['red','blue']
@@ -513,10 +533,14 @@ for i in range(len(g)):
 plt.title('$\\dot{c}/c = 0$ and $\\dot{k} = 0$ Loci')
 plt.xlabel('k')
 plt.ylabel('c')
+fig = plt.gcf() # Get the figure in order to save it
+fig.savefig('./RamseyCassKoopmans-Figures/RamseySSPlot.png')
+fig.savefig('./RamseyCassKoopmans-Figures/RamseySSPlot.pdf')
+
 plt.show()
 
 # %% {"code_folding": [0]}
-# Figure 2
+# Figure RamseySaddlePlot
 npoints = 100
 
 # Create and solve model
@@ -555,4 +579,7 @@ for i in range(len(init_cs)):
 plt.title('Transition to the Steady State')
 plt.xlabel('k')
 plt.ylabel('c')
+fig = plt.gcf() # Get the figure in order to save it
+fig.savefig('./RamseyCassKoopmans-Figures/RamseySaddlePlot.png')
+fig.savefig('./RamseyCassKoopmans-Figures/RamseySaddlePlot.pdf')
 plt.show()
