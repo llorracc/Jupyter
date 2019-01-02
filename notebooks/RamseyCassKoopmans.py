@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.1'
-#       jupytext_version: 0.8.3
+#       jupytext_version: 0.8.5
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -21,30 +21,7 @@
 #     name: python
 #     nbconvert_exporter: python
 #     pygments_lexer: ipython3
-#     version: 3.6.6
-#   varInspector:
-#     cols:
-#       lenName: 16
-#       lenType: 16
-#       lenVar: 40
-#     kernels_config:
-#       python:
-#         delete_cmd_postfix: ''
-#         delete_cmd_prefix: 'del '
-#         library: var_list.py
-#         varRefreshCmd: print(var_dic_list())
-#       r:
-#         delete_cmd_postfix: ') '
-#         delete_cmd_prefix: rm(
-#         library: var_list.r
-#         varRefreshCmd: 'cat(var_dic_list()) '
-#     types_to_exclude:
-#     - module
-#     - function
-#     - builtin_function_or_method
-#     - instance
-#     - _Feature
-#     window_display: false
+#     version: 3.7.1
 # ---
 
 # %% [markdown]
@@ -183,9 +160,12 @@ class RCKmod:
         k = np.concatenate((k_below,k_above)).flatten()
         
         # Solve for c on each side of the steady state capital,
-        # Assuming a slope of 1 to approximate initial conditions
-        c_below = odeint(self.dcdk, self.css - eps, k_below)
-        c_above = odeint(self.dcdk, self.css + eps, k_above)
+        # Using the slope of the saddle path to approximate initial
+        # conditions
+        c_below = odeint(self.dcdk,
+                         self.css - eps*self.slope_ss(), k_below)
+        c_above = odeint(self.dcdk,
+                         self.css + eps*self.slope_ss(), k_above)
         
         c = np.concatenate((c_below,c_above)).flatten()
         
