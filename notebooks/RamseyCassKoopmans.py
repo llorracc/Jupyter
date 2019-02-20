@@ -50,15 +50,33 @@
 # %% [markdown]
 # # Numerical Solution of Ramsey/Cass-Koopmans model
 #
+# [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/llorracc/Jupyter/master?filepath=notebooks%2FRamseyCassKoopmans.ipynb)
+#
+#
 # ## by [Mateo Velásquez-Giraldo](https://github.com/Mv77)
 #
-# This notebook implements a class representing Ramsey's growth model. Current utilities include:
-# - Numerically finding the consumption rule through 'time elimination', as originally implemented by Alexander Tabarrok and updated by Christopher D. Carroll in this [Wolfram Mathematica notebook](www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyNumericSolve.zip)
+# This notebook implements a class representing Ramsey's growth model. Current capacities include:
+# - Numerically finding the consumption rule using the 'time elimination' method as originally implemented by Alexander Tabarrok and updated by Christopher D. Carroll in this [Wolfram Mathematica notebook](www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyNumericSolve.zip)
 # - Drawing the phase diagram of the model.
-# - Simulating optimal capital dynamics from a given starting point.
+# - Simulating optimal dynamics from a given starting point.
 #
 # A formal treatment of the exact version of the model implemented in this notebook can be found in [Christopher Carroll's graduate macroeconomics lecture notes](http://www.econ2.jhu.edu/people/ccarroll/public/LectureNotes/Growth/RamseyCassKoopmans/).
 #
+
+# %% [markdown]
+# ## Time Elimination
+#
+# The 'time elimination' method is a straightforward way to obtain the slope of the saddle path of the model (the 'consumption function').
+#
+# The idea is simple.  The model has two dynamic equations:
+#    * $dc/dt$ is given by the consumption Euler equation
+#    * $dk/dt$ is given by the dynamic budget constraint
+#
+# To produce a phase diagram $\{k,c\}$ space, though, we need $dc/dk$.  The 'time elimination' method is simply to note that 
+#
+# $\left(\frac{dc/dt}{dk/dt}\right)=\left(\frac{dc}{dk}\right)$
+#
+# If we begin with some point that is on the saddle path (the consumption "policy function"), the equation for $dc/dk$ will tell us how to construct the function at other points along the saddle path
 
 # %% {"code_folding": [0]}
 # Setup
@@ -98,7 +116,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.rcParams['text.usetex'] = True
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Implement the RCKmod class
 
 class RCKmod:
@@ -335,7 +353,7 @@ print('Consumption at k = %1.2f is c = %1.2f'\
 RCKmodExample.phase_diagram(arrows= True, n_arrows = 12)
 
 # %% [markdown]
-# The class can also be used to simulate the dynamics of capital given a starting point.
+# The $\texttt{RCKmod}$ class can also be used to simulate the dynamics of capital given a starting point.
 
 # %% {"code_folding": [0]}
 # Create grid of time points
@@ -490,12 +508,12 @@ plt.show()
 #
 # Note that, given $\lambda_1<0$, as $t \rightarrow \infty$, $e^{\lambda_1 t}\rightarrow 0$ and $[\hat{c}_t,\hat{k}_t] = [0,0]$ which is precisely what we require.
 #
-# From the previous solution, we know that in our linear approximation of the dynamic system around $[\hat{c}_t, \hat{k}_t] = [0,0]$, the ratio $\hat{c}_t/\hat{k}_t$ will be the constant $u_{1,1}/u_{1,2}$. Therefore, we can conclude that the slope of the tangent to the saddle path (in k-c coordinates) at the steady state capital $\bar{k}$ will be exactly $u_{1,1}/u_{1,2}$ where $\mathbf{u_1}$ is the eigenvector associated with the negative eigenvalue of the Jacobian matrix J.
+# From the previous solution, we know that in our linear approximation of the dynamic system around $[\hat{c}_t, \hat{k}_t] = [0,0]$, the ratio $\hat{c}_t/\hat{k}_t$ will be the constant $u_{1,1}/u_{1,2}$. Therefore, we can conclude that the slope of the tangent to the saddle path (in k-c coordinates) at the steady state capital $\bar{k}$ will be exactly $u_{1,1}/u_{1,2}$ where $\mathbf{u_1}$ is the eigenvector associated with the negative eigenvalue of the Jacobian matrix J.  This corresponds to the "time elimination" step, because $u_{1,1}$ corresponds to $dc/dt$ and $u_{2,1}$ corresponds to $dk/dt$, so $u_{1,1}/u_{1,2}$ corresponds to $(dc/dt)/(dk/dt)=dc/dk$, which is the slope of the consumption function at the steady state.
 
 # %% [markdown]
 # # Appendix 2: Figures for Christopher D. Carroll's lecture notes
 
-# %% {"code_folding": [0, 8]}
+# %% {"code_folding": [8]}
 # Figure RamseySSPlot
 
 labels = ['$\phi$ low','$\phi$ high']
@@ -537,12 +555,13 @@ plt.title('$\\dot{c}/c = 0$ and $\\dot{k} = 0$ Loci')
 plt.xlabel('k')
 plt.ylabel('c')
 fig = plt.gcf() # Get the figure in order to save it
+fig.savefig('./RamseyCassKoopmans-Figures/RamseySSPlot.svg')
 fig.savefig('./RamseyCassKoopmans-Figures/RamseySSPlot.png')
 fig.savefig('./RamseyCassKoopmans-Figures/RamseySSPlot.pdf')
 
 plt.show()
 
-# %% {"code_folding": [0]}
+# %% {"code_folding": []}
 # Figure RamseySaddlePlot
 npoints = 100
 
@@ -583,6 +602,7 @@ plt.title('Transition to the Steady State')
 plt.xlabel('k')
 plt.ylabel('c')
 fig = plt.gcf() # Get the figure in order to save it
+fig.savefig('./RamseyCassKoopmans-Figures/RamseySaddlePlot.svg')
 fig.savefig('./RamseyCassKoopmans-Figures/RamseySaddlePlot.png')
 fig.savefig('./RamseyCassKoopmans-Figures/RamseySaddlePlot.pdf')
 plt.show()
