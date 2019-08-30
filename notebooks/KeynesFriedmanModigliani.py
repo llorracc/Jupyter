@@ -18,7 +18,7 @@
 from IPython.display import HTML
 
 HTML('''<script>
-code_show=true; 
+code_show=true;
 function code_toggle() {
  if (code_show){
  $('div.input').hide();
@@ -26,7 +26,7 @@ function code_toggle() {
  $('div.input').show();
  }
  code_show = !code_show
-} 
+}
 $( document ).ready(code_toggle);
 </script>
 <form action="javascript:code_toggle()"><input type="submit" value="Click here to toggle on/off the raw code."></form>''')
@@ -59,8 +59,8 @@ from HARK.utilities import plotFuncsDer, plotFuncs
 # ### 1. The Keynesian consumption function
 #
 # Keynes:
-# 1. "The amount of aggregate consumption mainly depends on the amount of aggregate income." 
-# 1. "It is a "fundamental psychological rule ... that when ... real income increases ... consumption [will increase], but by less than the increase in income." 
+# 1. "The amount of aggregate consumption mainly depends on the amount of aggregate income."
+# 1. "It is a "fundamental psychological rule ... that when ... real income increases ... consumption [will increase], but by less than the increase in income."
 # 1. More generally, "as a rule, a greater proportion of income ... is saved as real income increases."
 #
 # This can be formalized as:
@@ -81,7 +81,7 @@ from HARK.utilities import plotFuncsDer, plotFuncs
 # %% {"code_folding": []}
 # Plot cFunc(Y)=Y against the Keynesian consumption function
 # Deaton-Friedman consumption function is a special case of perfect foresight model
-PFexample = PerfForesightConsumerType(**Params.init_perfect_foresight) # set up a consumer type and use default parameteres  
+PFexample = PerfForesightConsumerType(**Params.init_perfect_foresight) # set up a consumer type and use default parameteres
 PFexample.cycles = 0 # Make this type have an infinite horizon
 
 PFexample.solve() # solve the consumer's problem
@@ -112,7 +112,7 @@ print('a_0 is ' + str(a_0))
 print('a_1 is ' +  str(a_1))
 
 # %% [markdown]
-# #### The Keynesian consumption function: Evidence 
+# #### The Keynesian consumption function: Evidence
 
 # %% [markdown]
 # Aggregate Data:
@@ -141,9 +141,15 @@ plt.show()
 
 print('a_0 is ' + str(intercept))
 print('a_1 is ' +  str(slope))
+# %%
+# However, our consumption data is non-stationary and this drives the previous
+# estimate.
+df.DPIC96.plot()
+plt.xlabel('Date')
+plt.ylabel('Consumption (c)')
 
 # %%
-# Looks pretty non-stationary though, lets use our second equation to try to find an estimate of a_1
+# Lets use our second equation to try to find an estimate of a_1
 
 df_diff = df.diff() #create dataframe of differenced values
 
