@@ -39,10 +39,6 @@ $( document ).ready(code_toggle);
 # %%
 # Some initial setup
 
-# !conda create -y -n KeynesFriedmanModigliani
-# !source activate KeynesFriedmanModigliani
-# !pip3 install --upgrade pandas==0.24.2
-
 import sys
 import os
 from matplotlib import pyplot as plt
@@ -84,9 +80,6 @@ from HARK.utilities import plotFuncsDer, plotFuncs
 
 # %% [markdown]
 # #### The Keynesian Consumption Function
-
-# %%
-dir(PFexample)
 
 # %% {"code_folding": []}
 # Plot cFunc(Y)=Y against the Keynesian consumption function
@@ -378,9 +371,3 @@ print('a_1 is ' +  str(slope))
 # %%
 # The estimate of a_1 using the annual data is much higher because permanent income is playing a much more important role
 # in explaining the variation in consumption.
-
-# %%
-# Delete KeynesFriedmanModigliani environment
-
-# !conda deactivate KeynesFriedmanModigliani
-# !conda remove --name KeynesFriedmanModigliani --all
