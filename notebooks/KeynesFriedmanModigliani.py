@@ -14,9 +14,11 @@
 #     name: python3
 # ---
 
-# %%
+# %% {"code_folding": []}
+# Import some scripts
 from IPython.display import HTML
 
+# Let's eliminate the "toggle" option -- just use codefolding 
 HTML('''<script>
 code_show=true;
 function code_toggle() {
@@ -37,12 +39,17 @@ $( document ).ready(code_toggle);
 # %%
 # Some initial setup
 
+# !conda create -y -n KeynesFriedmanModigliani
+# !source activate KeynesFriedmanModigliani
+# !pip3 install --upgrade pandas==0.24.2
+
 import sys
 import os
 from matplotlib import pyplot as plt
 import numpy as np
 plt.style.use('seaborn-darkgrid')
 palette = plt.get_cmap('Dark2')
+
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader.data as web
@@ -78,28 +85,33 @@ from HARK.utilities import plotFuncsDer, plotFuncs
 # %% [markdown]
 # #### The Keynesian Consumption Function
 
+# %%
+dir(PFexample)
+
 # %% {"code_folding": []}
 # Plot cFunc(Y)=Y against the Keynesian consumption function
 # Deaton-Friedman consumption function is a special case of perfect foresight model
 PFexample = PerfForesightConsumerType(**Params.init_perfect_foresight) # set up a consumer type and use default parameteres
 PFexample.cycles = 0 # Make this type have an infinite horizon
+PFexample.DiscFac = 0.05
+PFexample.PermGroFac = [0.7]
 
 PFexample.solve() # solve the consumer's problem
 PFexample.unpackcFunc() # unpack the consumption function
 
 # Plot the perfect foresight consumption function
-income_PF = np.linspace(-50, 50, 20) # pick some income points
+income_PF = np.linspace(0, 30, 20) # pick some income points
 plt.figure(figsize=(9,6))
 plt.plot(income_PF, PFexample.solution[0].cFunc(income_PF), label = 'Consumption function') #plot income versus the consumption
 plt.plot(income_PF, income_PF, 'k--', label = 'C=Y')
 plt.title('Consumption function')
 plt.xlabel('Income (y)')
 plt.ylabel('Normalized Consumption (c)')
-plt.ylim(-20, 20)
+plt.ylim(0, 20)
 plt.legend()
 plt.show()
 
-# %% {"code_folding": [0]}
+# %% {"code_folding": []}
 # This looks like the first of the three equations, consumption as a linear function of income!
 # This means that even in a microfounded model (that HARK provides), the consumption function can match Keynes reduced form
 # prediction (given the right parameterisation).
@@ -366,3 +378,9 @@ print('a_1 is ' +  str(slope))
 # %%
 # The estimate of a_1 using the annual data is much higher because permanent income is playing a much more important role
 # in explaining the variation in consumption.
+
+# %%
+# Delete KeynesFriedmanModigliani environment
+
+# !conda deactivate KeynesFriedmanModigliani
+# !conda remove --name KeynesFriedmanModigliani --all
