@@ -27,7 +27,22 @@ import numpy as np
 plt.style.use('seaborn-darkgrid')
 palette = plt.get_cmap('Dark2')
 
+# As of 09/03/2019 the latest available version of pandas-datareader
+# has conflicts with the latest version of pandas. We temporarily fix
+# this by downgrading pandas to a previous version.
+
+# Make sure pandas is not loaded before trying to change its version.
+try:
+    del pandas
+    print('Pandas has been unloaded')
+except:
+    print('Pandas was not loaded')   
 # !pip install pandas==0.24.2
+
+# Install packages that are not included in Anaconda.
+# !pip install pandas-datareader
+# !pip install statsmodels
+
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader.data as web
@@ -108,7 +123,7 @@ print('a_1 is ' +  str(a_1))
 # Short-term aggregate time-series estimates of change in consumption on change in income find $a_1 << 1$.<br>
 # $c_t = a_0 + a_{1}y_t + a_{2}c_{t-1}$ finds significant $a_2$, near 1.
 
-# %% {"code_folding": [0]}
+# %% {"code_folding": []}
 # Lets have a look at some aggregate data
 
 sdt = dt.datetime(1980, 1, 1) #set startdate
