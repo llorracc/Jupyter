@@ -14,25 +14,6 @@
 #     name: python3
 # ---
 
-# %% {"code_folding": []}
-# Import some scripts
-from IPython.display import HTML
-
-# Let's eliminate the "toggle" option -- just use codefolding 
-HTML('''<script>
-code_show=true;
-function code_toggle() {
- if (code_show){
- $('div.input').hide();
- } else {
- $('div.input').show();
- }
- code_show = !code_show
-}
-$( document ).ready(code_toggle);
-</script>
-<form action="javascript:code_toggle()"><input type="submit" value="Click here to toggle on/off the raw code."></form>''')
-
 # %% [markdown]
 # ## Introduction: Keynes, Friedman, Modigliani
 
