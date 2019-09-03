@@ -46,6 +46,7 @@ import numpy as np
 plt.style.use('seaborn-darkgrid')
 palette = plt.get_cmap('Dark2')
 
+# !pip install pandas==0.24.2
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader.data as web
