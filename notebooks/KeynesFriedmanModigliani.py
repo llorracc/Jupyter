@@ -27,6 +27,11 @@ import numpy as np
 plt.style.use('seaborn-darkgrid')
 palette = plt.get_cmap('Dark2')
 
+# Install packages that are not included in Anaconda.
+# !pip install pandas-datareader
+# !pip install statsmodels
+# !pip install econ-ark
+
 # As of 09/03/2019 the latest available version of pandas-datareader
 # has conflicts with the latest version of pandas. We temporarily fix
 # this by downgrading pandas to a previous version.
@@ -35,13 +40,11 @@ palette = plt.get_cmap('Dark2')
 try:
     del pandas
     print('Pandas has been unloaded')
+    # (As we are requiring a specific version, if another version
+    # is loaded we will get an "access denied" error)
 except:
     print('Pandas was not loaded')   
 # !pip install pandas==0.24.2
-
-# Install packages that are not included in Anaconda.
-# !pip install pandas-datareader
-# !pip install statsmodels
 
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
