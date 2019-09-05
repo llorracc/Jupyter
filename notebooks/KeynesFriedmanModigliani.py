@@ -19,7 +19,6 @@
 
 # %%
 # Some initial setup
-
 import sys
 import os
 from matplotlib import pyplot as plt
@@ -27,32 +26,18 @@ import numpy as np
 plt.style.use('seaborn-darkgrid')
 palette = plt.get_cmap('Dark2')
 
-# Install packages that are not included in Anaconda.
-# !pip install pandas-datareader
-# !pip install statsmodels
-# !pip install econ-ark
-
-# As of 09/03/2019 the latest available version of pandas-datareader
-# has conflicts with the latest version of pandas. We temporarily fix
-# this by downgrading pandas to a previous version.
-
-# Make sure pandas is not loaded before trying to change its version.
-try:
-    del pandas
-    print('Pandas has been unloaded')
-    # (As we are requiring a specific version, if another version
-    # is loaded we will get an "access denied" error)
-except:
-    print('Pandas was not loaded')   
-# !pip install pandas==0.24.2
-
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
-import pandas_datareader.data as web
 import datetime as dt
 import scipy.stats as stats
 import statsmodels.formula.api as sm
 from copy  import deepcopy
+
+#import pandas_datareader.data as web
+# As of 09/03/2019 the latest available version of pandas-datareader
+# has conflicts with the latest version of pandas. We temporarily fix
+# this by loading data from files.
+# This should not be necessary when pandas-datareader>0.7 becomes available.
 
 from HARK.ConsumptionSaving.ConsIndShockModel import *
 import HARK.ConsumptionSaving.ConsumerParameters as Params
@@ -131,8 +116,15 @@ print('a_1 is ' +  str(a_1))
 
 sdt = dt.datetime(1980, 1, 1) #set startdate
 edt = dt.datetime (2017, 1, 1) #set end date
-df = web.DataReader(["PCECC96", "DPIC96"], "fred", sdt, edt) #import the data from Fred
-
+# df = web.DataReader(["PCECC96", "DPIC96"], "fred", sdt, edt) #import the data from Fred
+try:
+    df = pd.read_csv('notebooks/KeynesFriedmanModigliani_data/quarterly_data.csv',
+                 parse_dates = ['DATE'],
+                 index_col = [0])
+except:
+    df = pd.read_csv('KeynesFriedmanModigliani_data/quarterly_data.csv',
+                 parse_dates = ['DATE'],
+                 index_col = [0])
 # Plot the data
 plt.figure(figsize=(9,6))
 plt.plot(df.DPIC96, df.PCECC96, 'go', markersize=3.0, label='Data')
@@ -350,8 +342,16 @@ print('a_1 is ' +  str(slope))
 
 sdt = dt.datetime(1980, 1, 1) #set startdate
 edt = dt.datetime (2017, 1, 1) #set end date
-df_an = web.DataReader(["PCECCA", "A067RX1A020NBEA"], "fred", sdt, edt) #import the annual data from Fred
-
+#df_an = web.DataReader(["PCECCA", "A067RX1A020NBEA"], "fred", sdt, edt) #import the annual data from Fred
+try:
+    df_an = pd.read_csv('notebooks/KeynesFriedmanModigliani_data/annual_data.csv',
+                    parse_dates = ['DATE'],
+                    index_col = [0])
+except:
+    df_an = pd.read_csv('KeynesFriedmanModigliani_data/annual_data.csv',
+                    parse_dates = ['DATE'],
+                    index_col = [0])
+                    
 df_an_diff = df_an.diff()
 df_an_diff.columns = ['cons', 'inc']
 
