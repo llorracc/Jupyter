@@ -44,6 +44,7 @@ from HARK.ConsumptionSaving.ConsIndShockModel import *
 import HARK.ConsumptionSaving.ConsumerParameters as Params
 from HARK.utilities import plotFuncsDer, plotFuncs
 
+
 # %% [markdown]
 # ### 1. The Keynesian consumption function
 #
@@ -67,22 +68,45 @@ from HARK.utilities import plotFuncsDer, plotFuncs
 # %% [markdown]
 # #### The Keynesian Consumption Function
 
+# %%
+class KeynesianConsumer:
+    """
+    This class represents consumers that behave according to a
+    Keynesian consumption function, representing them as a
+    special case of HARK's PerfForesightConsumerType
+    
+    Methods:
+    - cFunc: computes consumption/permanent income 
+             given total income/permanent income.
+    """
+    
+    def __init__(self):
+        
+        PFexample = PerfForesightConsumerType(**Params.init_perfect_foresight) # set up a consumer type and use default parameteres
+        PFexample.cycles = 0 # Make this type have an infinite horizon
+        PFexample.DiscFac = 0.05
+        PFexample.PermGroFac = [0.7]
+
+        PFexample.solve() # solve the consumer's problem
+        PFexample.unpackcFunc() # unpack the consumption function
+        
+        self.cFunc = PFexample.solution[0].cFunc
+        self.a0 = self.cFunc(0)
+        self.a1 = self.cFunc(1) - self.cFunc(0)
+
+
 # %% {"code_folding": []}
 # Plot cFunc(Y)=Y against the Keynesian consumption function
 # Deaton-Friedman consumption function is a special case of perfect foresight model
-PFexample = PerfForesightConsumerType(**Params.init_perfect_foresight) # set up a consumer type and use default parameteres
-PFexample.cycles = 0 # Make this type have an infinite horizon
-PFexample.DiscFac = 0.05
-PFexample.PermGroFac = [0.7]
 
-PFexample.solve() # solve the consumer's problem
-PFexample.unpackcFunc() # unpack the consumption function
+# We first create a Keynesian consumer
+KeynesianExample = KeynesianConsumer()
 
-# Plot the perfect foresight consumption function
-income_PF = np.linspace(0, 30, 20) # pick some income points
+# and then plot its consumption function
+income = np.linspace(0, 30, 20) # pick some income points
 plt.figure(figsize=(9,6))
-plt.plot(income_PF, PFexample.solution[0].cFunc(income_PF), label = 'Consumption function') #plot income versus the consumption
-plt.plot(income_PF, income_PF, 'k--', label = 'C=Y')
+plt.plot(income, KeynesianExample.cFunc(income), label = 'Consumption function') #plot income versus the consumption
+plt.plot(income, income, 'k--', label = 'C=Y')
 plt.title('Consumption function')
 plt.xlabel('Income (y)')
 plt.ylabel('Normalized Consumption (c)')
@@ -96,9 +120,8 @@ plt.show()
 # prediction (given the right parameterisation).
 
 # We can even find a_0 and a_1
-
-a_0 = PFexample.solution[0].cFunc(0)
-a_1 = PFexample.solution[0].cFunc(1) - PFexample.solution[0].cFunc(0) # We could also simulate the model in HARK and use MPCnow
+a_0 = KeynesianExample.a0
+a_1 = KeynesianExample.a1
 print('a_0 is ' + str(a_0))
 print('a_1 is ' +  str(a_1))
 
@@ -350,6 +373,7 @@ df_habit.dropna()
 result = sm.ols(formula = "cons ~ inc + cons_m1", data=df_habit.dropna()).fit()
 result.summary()
 
+
 # %%
 # This regression is clearly problematic for the usual non-stationary reasons.
 # Nevertheless we see that the coefficient on lagged consumption is very significant.
@@ -369,35 +393,52 @@ result.summary()
 
 # %% [markdown]
 # #### Friedman's Permanent Income Hypothesis: HARK
+#
+# We begin by creating a class that class implements the Friedman PIH consumption function as a special case of the [Perfect Foresight CRRA](http://econ.jhu.edu/people/ccarroll/courses/choice/lecturenotes/consumption/PerfForesightCRRA) model.
 
 # %%
-# We can get the PIH result with a specific parameterisation of our consumer that we used earlier
-# for the Keynesian consumption function
+class FriedmanPIHConsumer:
+    """
+    This class represents consumers that behave according to
+    Friedman's permanent income hypothesis, representing them as a
+    special case of HARK's PerfForesightConsumerType
+    
+    Methods:
+    - cFunc: computes consumption/permanent income 
+             given total income/permanent income.
+    """
+    
+    def __init__(self, Rfree=1.001, CRRA = 2):
+        
+        PFaux = PerfForesightConsumerType(**Params.init_perfect_foresight) # set up a consumer type and use default parameteres
+        PFaux.cycles = 0 # Make this type have an infinite horizon
+        PFaux.DiscFac = 1/Rfree
+        PFaux.Rfree = Rfree
+        PFaux.LivPrb = [1.0]
+        PFaux.PermGroFac = [1.0]
+        PFaux.CRRA = CRRA
+        PFaux.solve() # solve the consumer's problem
+        PFaux.unpackcFunc() # unpack the consumption function
+        
+        self.cFunc = PFaux.solution[0].cFunc
 
-PFexample_PIH = deepcopy(PFexample) #copy our last agent
 
-# Change some parameters...
-PFexample_PIH.DiscFac = 1.
-PFexample_PIH.Rfree = 1.
-PFexample_PIH.LivPrb = [1.0]
-PFexample_PIH.PermGroFac = [1.0]
-
-PFexample_PIH.solve() # solve the consumer's problem
-PFexample_PIH.unpackcFunc() # unpack the consumption function
+# %%
+# We can now create a PIH consumer
+PIHexample = FriedmanPIHConsumer()
 
 # Plot the perfect foresight consumption function
-income_PF = np.linspace(-50, 50, 20) # pick some income points
+income = np.linspace(0, 50, 20) # pick some income points
 plt.figure(figsize=(9,6))
-plt.plot(income_PF, PFexample_PIH.solution[0].cFunc(income_PF), label = 'Consumption function') #plot income versus the consumption
-plt.plot(income_PF, income_PF, 'k--', label = 'C=Y')
+plt.plot(income, PIHexample.cFunc(income), label = 'Consumption function') #plot income versus the consumption
+plt.plot(income, income, 'k--', label = 'C=Y')
 plt.title('Consumption function')
-plt.xlabel('Income (y)')
+plt.xlabel('Normalized Income (y)')
 plt.ylabel('Normalized Consumption (c)')
-plt.ylim(-20, 20)
 plt.legend()
 plt.show()
 
-# %%
+# %% {"code_folding": []}
 # We can see that regardless of the income our agent recieves, they consume their permanent income, normalised to 1
 
 # %% [markdown]
@@ -415,10 +456,10 @@ trans_inc = np.random.normal(0.5, 0.1, 50)
 
 total_inc = perm_inc + trans_inc
 
-slope, intercept, r_value, p_value, std_err = stats.linregress(total_inc, PFexample_PIH.solution[0].cFunc(total_inc)*perm_inc)
+slope, intercept, r_value, p_value, std_err = stats.linregress(total_inc, PIHexample.cFunc(total_inc)*perm_inc)
 
 plt.figure(figsize=(9,6))
-plt.plot(total_inc, PFexample_PIH.solution[0].cFunc(total_inc)*perm_inc, 'go', label='Simulated data')
+plt.plot(total_inc, PIHexample.cFunc(total_inc)*perm_inc, 'go', label='Simulated data')
 plt.plot(total_inc, intercept + slope*total_inc, 'k-', label='Line of best fit')
 plt.plot(np.linspace(1, 2, 5), np.linspace(1, 2, 5), 'k--', label='C=Y')
 plt.xlabel('Income (y)')
@@ -439,10 +480,10 @@ trans_inc = np.random.normal(0.5, 0.1, 50)
 
 total_inc = perm_inc + trans_inc
 
-slope, intercept, r_value, p_value, std_err = stats.linregress(total_inc, PFexample_PIH.solution[0].cFunc(total_inc)*perm_inc)
+slope, intercept, r_value, p_value, std_err = stats.linregress(total_inc, PIHexample.cFunc(total_inc)*perm_inc)
 
 plt.figure(figsize=(9,6))
-plt.plot(total_inc, PFexample_PIH.solution[0].cFunc(total_inc)*perm_inc, 'go', label='Simulated data')
+plt.plot(total_inc, PIHexample.cFunc(total_inc)*perm_inc, 'go', label='Simulated data')
 plt.plot(total_inc, intercept + slope*total_inc, 'k-', label='Line of best fit')
 plt.plot(np.linspace(0, 2, 5), np.linspace(0, 2, 5), 'k--', label='C=Y')
 plt.xlabel('Income (y)')
