@@ -5,3 +5,5 @@ scipy==1.0.0
 jupyter_contrib_nbextensions
 econ-ark
 pandas
+pandas-datareader
+statsmodels
