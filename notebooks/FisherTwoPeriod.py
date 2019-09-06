@@ -33,15 +33,27 @@ import ipywidgets as widgets
 
 
 # %% [markdown]
-# ### Basic Plot
+# This notebook creates interactive widgets illustrating a two-period optimal consumption problem. It also presents graphic representations of the decomposition of the effect of interest rates into the income, substitution, and human wealth effects.
+
+# %% [markdown]
+# ### Basic Plot: the optimal $(c_1,c_2)$ bundle.
 
 # %%
-# Define a function that plots something given some inputs
+# The first step in creating a widget is defining
+# a function that will receive the user's input as
+# parameters and generate the entity that we want
+# to analyze: in this case, a figure of the optimmal
+# consumption bundle given income, assets, and interest
+# rates
 
 def FisherPlot(Y1, Y2, B1, R, c1Max, c2Max):
     
     # Basic setup of perfect foresight consumer
-    PFexample = PerfForesightConsumerType(**Params.init_perfect_foresight) # set up a consumer type and use default parameters  
+    
+    # We first create an instance of the class
+    # PerfForesightConsumerType, with its standard parameters.
+    PFexample = PerfForesightConsumerType(**Params.init_perfect_foresight) 
+    
     PFexample.cycles = 1 # let the agent live the cycle of periods just once
     PFexample.T_cycle = 2 # Number of periods in the cycle
     PFexample.PermGroFac = [1.] # No automatic growth in income across periods
@@ -51,20 +63,23 @@ def FisherPlot(Y1, Y2, B1, R, c1Max, c2Max):
     CRRA = PFexample.CRRA
     Beta = PFexample.DiscFac
     
-    # Set the parameters we enter
+    # Set interest rate and bank balances from input.
     PFexample.Rfree = R
     PFexample.aNrmInitMean = B1
     
-    c1Min = 0.
-    c2Min = 0.
+    # Solve the model: this generates the optimal consumption function.
     
-    # Solve the model
+    # Try-except blocks "try" to execute the code in the try block. If an
+    # error occurs, the except block is executed and the application does
+    # not halt
     try:
         PFexample.solve()
     except:
         print('Those parameter values violate a condition required for solution!')
         
-    # Plot the chart
+    # Create the figure
+    c1Min = 0.
+    c2Min = 0.
     plt.figure(figsize=(8,8))
     plt.xlabel('Period 1 Consumption $C_1$')
     plt.ylabel('Period 2 Consumption $C_2$')
@@ -86,7 +101,8 @@ def FisherPlot(Y1, Y2, B1, R, c1Max, c2Max):
     C1_V = np.linspace(((1-CRRA)*V)**(1/1-CRRA)+0.5, c1Max, 1000)
     C2_V = (((1-CRRA)*V - C1_V**(1-CRRA))/Beta)**(1/1-CRRA)
     plt.plot(C1_V, C2_V, 'b-', label='Indiferrence Curve')
-        
+    
+    # Add a legend and display the plot
     plt.legend()
     plt.show()
     
@@ -94,7 +110,10 @@ def FisherPlot(Y1, Y2, B1, R, c1Max, c2Max):
 
 
 # %%
-# Define some widgets to control the plot
+# We now define the controls that will receive and transmit the
+# user's input.
+# These are sliders for which the range, step, display, and
+# behavior are defined.
 
 # Define a slider for the interest rate
 Rfree_widget = widgets.FloatSlider(
@@ -152,7 +171,6 @@ c2Max_widget = widgets.FloatText(
 
 # %%
 # Make the widget
-
 interact(FisherPlot,
          Y1 = Y1_widget,
          Y2 = Y2_widget,
@@ -164,13 +182,13 @@ interact(FisherPlot,
 
 
 # %% [markdown]
-# ### Lifetime income earned in first period
+# ### Second plot: interest rate shifts with lifetime income earned in first period.
 
 # %%
-# Widget for figure 1
+# This follows the same process as the previous plot, but now the problem
+# is solved at two different interest rates in order to illustrate their effect.
 
 # Define a function that plots something given some bits
-
 def FisherPlot1(Y1, Y2, B1, RHi, RLo, c1Max, c2Max):
     
     # Basic setup of perfect foresight consumer
@@ -196,7 +214,7 @@ def FisherPlot1(Y1, Y2, B1, RHi, RLo, c1Max, c2Max):
     c1Min = 0.
     c2Min = 0.
     
-    # Solve the model for RfreeHigh
+    # Solve the model for RfreeHigh and RfreeLow
     try:
         PFexampleRHi.solve()
         PFexampleRLo.solve()
@@ -338,13 +356,12 @@ interact(FisherPlot1,
 
 
 # %% [markdown]
-# ### Lifetime income earned in second period
+# ### Third plot: interest rate shifts with lifetime income earned in second period
 
 # %%
-# Widget for figure 2
+# This follows the same process, but we now fix Y_1 at 0
 
 # Define a function that plots something given some bits
-
 def FisherPlot2(Y1, Y2, B1, RHi, RLo, c1Max, c2Max):
     
     # Basic setup of perfect foresight consumer
