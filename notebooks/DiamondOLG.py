@@ -83,24 +83,24 @@ def plot1(Epsilon, DiscFac, PopGrowth, YearsPerGeneration, kMax, Initialk):
     ktp1_ar = 0.
     for i in range(3):
         
-        plt.arrow(kt_ar, ktp1_ar, 0., Q*kt_ar**Epsilon-ktp1_ar,
-                  length_includes_head=True,
-                  lw=0.01,
-                  width=0.0005,
-                  color='black',
-                  edgecolor=None)
-        plt.arrow(kt_ar, Q*kt_ar**Epsilon, Q*kt_ar**Epsilon-kt_ar , 0.,
-                  length_includes_head=True,
-                  lw=0.01,
-                  width=0.0005,
-                  color='black',
-                  edgecolor=None)
-        
         # Compute Next Period's capital using HARK
         wage = (1-Epsilon)*kt_ar**Epsilon
         c = PFagent.solution[0].cFunc(wage)
         a = wage - c
         k1 = a/xi
+        
+        plt.arrow(kt_ar, ktp1_ar, 0., k1-ktp1_ar,
+                  length_includes_head=True,
+                  lw=0.01,
+                  width=0.0005,
+                  color='black',
+                  edgecolor=None)
+        plt.arrow(kt_ar, k1, k1-kt_ar , 0.,
+                  length_includes_head=True,
+                  lw=0.01,
+                  width=0.0005,
+                  color='black',
+                  edgecolor=None)
         
         # Update arrow
         kt_ar = k1
