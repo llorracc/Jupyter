@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.2.3
+#       jupytext_version: 1.2.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -21,7 +21,6 @@
 
 # %%
 # Some initial setup
-
 import sys 
 import os
 sys.path.insert(0, os.path.abspath('../lib'))
@@ -36,10 +35,12 @@ from copy  import deepcopy
 from ipywidgets import interact, interactive, fixed, interact_manual
 import ipywidgets as widgets
 
+from HARK.ConsumptionSaving.ConsIndShockModel import *
+import HARK.ConsumptionSaving.ConsumerParameters as Params
+
 
 # %%
 # Define a function that plots something given some inputs
-
 def plot1(Epsilon, DiscFac, PopGrowth, YearsPerGeneration, kMax, Initialk):
     '''Inputs:
         Epsilon: Elasticity of output with respect to capital/labour ratio
@@ -53,10 +54,26 @@ def plot1(Epsilon, DiscFac, PopGrowth, YearsPerGeneration, kMax, Initialk):
     Q = (1-Epsilon)*(Beta/(1+Beta))/xi
     kBar = Q**(1/(1-Epsilon))
     
+    # Create an agent that will solve the consumption problem
+    PFagent = PerfForesightConsumerType(**Params.init_perfect_foresight)
+    PFagent.cycles = 1 # let the agent live the cycle of periods just once
+    PFagent.T_cycle = 2 # Number of periods in the cycle
+    PFagent.PermGroFac = [0.] # Income only in the first period
+    PFagent.LivPrb = [1.]
+    
+    PFagent.DiscFac = Beta
+    
+    # Hark seems to have trouble with log-utility
+    # so pass rho = 1 + something small.
+    PFagent.CRRA = 1.001
+    
+    PFagent.solve()
+    
     # Plot the OLG capital accumulation curve and 45 deg line
     plt.figure(figsize=(9,6))
     kt_range = np.linspace(0, kMax, 1000)
     
+    # Analitical solution plot
     ktp1 = Q*kt_range**Epsilon
     plt.plot(kt_range, ktp1, 'b-', label='Capital accumulation curve')
     plt.plot(kt_range, kt_range, 'k-', label='45 Degree line')
@@ -65,6 +82,7 @@ def plot1(Epsilon, DiscFac, PopGrowth, YearsPerGeneration, kMax, Initialk):
     kt_ar = Initialk
     ktp1_ar = 0.
     for i in range(3):
+        
         plt.arrow(kt_ar, ktp1_ar, 0., Q*kt_ar**Epsilon-ktp1_ar,
                   length_includes_head=True,
                   lw=0.01,
@@ -77,9 +95,16 @@ def plot1(Epsilon, DiscFac, PopGrowth, YearsPerGeneration, kMax, Initialk):
                   width=0.0005,
                   color='black',
                   edgecolor=None)
-        kt_ar = Q*kt_ar**Epsilon
+        
+        # Compute Next Period's capital using HARK
+        wage = (1-Epsilon)*kt_ar**Epsilon
+        c = PFagent.solution[0].cFunc(wage)
+        a = wage - c
+        k1 = a/xi
+        
+        # Update arrow
+        kt_ar = k1
         ktp1_ar = kt_ar
-        i = i+1  
     
     # Plot kbar and initial k
     plt.plot(kBar, kBar, 'ro', label='kBar')
@@ -157,7 +182,6 @@ kMax_widget1 = widgets.FloatText(
 
 # %%
 # Make the widget
-
 interact(plot1,
          Epsilon = Epsilon_widget1,
          DiscFac = DiscFac_widget1,
@@ -173,7 +197,6 @@ interact(plot1,
 
 # %%
 # Define a function that plots something given some inputs
-
 def plot2(Epsilon, PopGrowth, YearsPerGeneration, kMax):
     '''Inputs:
         Epsilon: Elasticity of output with respect to capital/labour ratio
@@ -251,7 +274,6 @@ kMax_widget2 = widgets.FloatText(
 
 # %%
 # Make the widget
-
 interact(plot2,
          Epsilon = Epsilon_widget2,
          PopGrowth = PopGrowth_widget2,
@@ -259,5 +281,3 @@ interact(plot2,
          Initialk = Initialk_widget1,
          kMax = kMax_widget2,
         );
-
-# %%
