@@ -7,3 +7,4 @@ econ-ark
 pandas
 pandas-datareader
 statsmodels
+seaborn
