@@ -56,7 +56,7 @@ IdiosyncDict={
     "aXtraExtra" : [None],                 # Additional values to add to aXtraGrid
     
     # A few other paramaters
-    "BoroCnstArt" : -500,                   # Artificial borrowing constraint; imposed minimum level of end-of period assets
+    "BoroCnstArt" : -500,                  # Artificial borrowing constraint; imposed minimum level of end-of period assets
     "vFuncBool" : True,                    # Whether to calculate the value function during solution   
     "CubicBool" : False,                   # Preference shocks currently only compatible with linear cFunc
     "T_cycle" : 1,                         # Number of periods in the cycle for this agent type        
@@ -89,6 +89,22 @@ PFConsumer.cycles = 0
 PFConsumer.solve()
 
 # %%
-plotFuncs([IndShockConsumer.solution[0].cFunc, PFConsumer.solution[0].cFunc],
+# Define a function for the delta(m)=0 locus
+m0_locus = lambda m: m - (m-1)/(IdiosyncDict["Rfree"]/IdiosyncDict["PermGroFac"][0])
+
+# Define grid of market resources
+m_max = 50
+m_grid = np.linspace(IndShockConsumer.solution[0].mNrmMin, m_max, 500)
+
+plt.figure()
+plt.plot(m_grid, IndShockConsumer.solution[0].cFunc(m_grid), label = 'Uncert')
+plt.plot(m_grid, PFConsumer.solution[0].cFunc(m_grid), label = 'PF')
+plt.plot(m_grid, m0_locus(m_grid), label = 'locus')
+plt.plot(IndShockConsumer.solution[0].mNrmSS,
+         IndShockConsumer.solution[0].cFunc(IndShockConsumer.solution[0].mNrmSS),'*')
+plt.legend()
+
+plt.figure()
+plotFuncs([IndShockConsumer.solution[0].cFunc, PFConsumer.solution[0].cFunc, m0_locus],
           IndShockConsumer.solution[0].mNrmMin,50)
-plotFuncs(PFConsumer.solution[0].cFunc,PFConsumer.solution[0].mNrmMin,5)
+plt.plot(IndShockConsumer.solution[0].mNrmSS, IndShockConsumer.solution[0].mNrmSS,'*')
