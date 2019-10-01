@@ -89,6 +89,18 @@ PFConsumer.cycles = 0
 PFConsumer.solve()
 
 # %%
+# Figure 1
+m_max = 50
+m_grid = np.linspace(IndShockConsumer.solution[0].mNrmMin, m_max, 50)
+
+plt.figure()
+plt.plot(m_grid, IndShockConsumer.solution[0].vPfunc(m_grid), label = 'Uncert')
+plt.plot(m_grid, PFConsumer.solution[0].vPfunc(m_grid), label = 'PF')
+plt.legend()
+
+# %%
+# Figure 2
+
 # Define a function for the delta(m)=0 locus
 m0_locus = lambda m: m - (m-1)/(IdiosyncDict["Rfree"]/IdiosyncDict["PermGroFac"][0])
 
@@ -104,7 +116,4 @@ plt.plot(IndShockConsumer.solution[0].mNrmSS,
          IndShockConsumer.solution[0].cFunc(IndShockConsumer.solution[0].mNrmSS),'*')
 plt.legend()
 
-plt.figure()
-plotFuncs([IndShockConsumer.solution[0].cFunc, PFConsumer.solution[0].cFunc, m0_locus],
-          IndShockConsumer.solution[0].mNrmMin,50)
-plt.plot(IndShockConsumer.solution[0].mNrmSS, IndShockConsumer.solution[0].mNrmSS,'*')
+# %%
