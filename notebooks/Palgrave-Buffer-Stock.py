@@ -93,6 +93,8 @@ PFConsumer.solve()
 m_max = 50
 m_grid = np.linspace(IndShockConsumer.solution[0].mNrmMin, m_max, 50)
 
+uP = lambda c: c**(-IdiosyncDict["CRRA"]) 
+
 plt.figure()
 plt.plot(m_grid, IndShockConsumer.solution[0].vPfunc(m_grid), label = 'Uncert')
 plt.plot(m_grid, PFConsumer.solution[0].vPfunc(m_grid), label = 'PF')
@@ -109,11 +111,26 @@ m_max = 50
 m_grid = np.linspace(IndShockConsumer.solution[0].mNrmMin, m_max, 500)
 
 plt.figure()
-plt.plot(m_grid, IndShockConsumer.solution[0].cFunc(m_grid), label = 'Uncert')
-plt.plot(m_grid, PFConsumer.solution[0].cFunc(m_grid), label = 'PF')
-plt.plot(m_grid, m0_locus(m_grid), label = 'locus')
-plt.plot(IndShockConsumer.solution[0].mNrmSS,
-         IndShockConsumer.solution[0].cFunc(IndShockConsumer.solution[0].mNrmSS),'*')
+# Uncertainty solution
+plt.plot(m_grid, IndShockConsumer.solution[0].cFunc(m_grid), label = '$c(m)$')
+# Perfect foresight solution
+plt.plot(m_grid, PFConsumer.solution[0].cFunc(m_grid), label = 'Perf. Foresight $c(m)$')
+# Stable resource line
+plt.plot(m_grid, m0_locus(m_grid), label = 'Perm. Inc')
+# Target
+targ = (IndShockConsumer.solution[0].mNrmSS,
+        IndShockConsumer.solution[0].cFunc(IndShockConsumer.solution[0].mNrmSS))
+plt.plot(targ[0], targ[1], '*')
+
+# Annotations
+plt.xlabel('m')
+plt.ylabel('c')
+plt.annotate('Target',
+             xy = targ,
+             xytext = (targ[0]+5, targ[1]-0.5),
+             arrowprops=dict(facecolor='black', shrink=0.05,
+                             headwidth = 3, width = 0.5)
+            )
 plt.legend()
 
 # %%
