@@ -24,6 +24,8 @@ mystr = lambda number : "{:.4f}".format(number)
 
 from copy import copy
 
+from scipy.interpolate import interp1d
+
 # %% {"code_folding": []}
 # Create two consumers, a perfect foresight one and one with shocks to income
 
@@ -34,12 +36,12 @@ IdiosyncDict={
     "Rfree": 1.03,                         # Interest factor on assets
     "DiscFac": 0.96,                       # Intertemporal discount factor
     "LivPrb" : [0.98],                     # Survival probability
-    "PermGroFac" :[1.01],                  # Permanent income growth factor
+    "PermGroFac" :[1.0],                  # Permanent income growth factor
     
     # Parameters that specify the income distribution over the lifecycle
-    "PermShkStd" : [0.1],                  # Standard deviation of log permanent shocks to income
+    "PermShkStd" : [0.2],                  # Standard deviation of log permanent shocks to income
     "PermShkCount" : 7,                    # Number of points in discrete approximation to permanent income shocks
-    "TranShkStd" : [0.2],                  # Standard deviation of log transitory shocks to income
+    "TranShkStd" : [0.4],                  # Standard deviation of log transitory shocks to income
     "TranShkCount" : 7,                    # Number of points in discrete approximation to transitory income shocks
     "UnempPrb" : 0.0,                     # Probability of unemployment while working
     "IncUnemp" : 0.0,                      # Unemployment benefits replacement rate
@@ -90,15 +92,45 @@ PFConsumer.solve()
 
 # %%
 # Figure 1
-m_max = 50
-m_grid = np.linspace(IndShockConsumer.solution[0].mNrmMin, m_max, 50)
+def uP(agent, c):
+    return( c**(-agent.CRRA) )
+    
+def approxOmegaP(agent, m0):
+    
+    if m0 > 0:
+        m_grid = np.linspace(0.01,10*m0,1000)
+    else:
+        m_grid = np.linspace(m0,10,1000)
+        
+    c_grid = agent.solution[0].cFunc(m_grid)
+    a_grid = m_grid - c_grid
+    omega_grid = uP(agent, c_grid)
+    omega = interp1d(a_grid, omega_grid, kind='cubic')
+    
+    return(omega)
 
-uP = lambda c: c**(-IdiosyncDict["CRRA"]) 
+target = IndShockConsumer.solution[0].mNrmSS
+omegaP_uncert = approxOmegaP(IndShockConsumer, target)
+omegaP_PF = approxOmegaP(PFConsumer, target)
 
+m = 10
+a_grid = np.linspace(4, m*0.95, 50)
+ 
+lab1 = '$\omega_t\'(a) = R \\beta E_t [v_{t+1}\'(aR + \\tilde{y}_{t+1})]$'
+lab2 = '$R \\beta v_{t+1}\'(aR + E_t[\\tilde{y}_{t+1}])$'
+lab3 = '$u\'(m_t-a)$'
 plt.figure()
-plt.plot(m_grid, IndShockConsumer.solution[0].vPfunc(m_grid), label = 'Uncert')
-plt.plot(m_grid, PFConsumer.solution[0].vPfunc(m_grid), label = 'PF')
+# Omega uncertainty
+plt.plot(a_grid, omegaP_uncert(a_grid), label = lab1)
+# Omega Perfect foresight
+plt.plot(a_grid, omegaP_PF(a_grid), label = lab2)
+# Marginal utility
+plt.plot(a_grid, uP(IndShockConsumer, m - a_grid), label = lab3)
+
+plt.xlabel('a')
 plt.legend()
+
+
 
 # %%
 # Figure 2
