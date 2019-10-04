@@ -75,14 +75,14 @@ IdiosyncDict={
     "T_age" : None,                        # Age after which simulated agents are automatically killed
 }
 
-# Parameters without uncertainty
+# Create a copy with uncertainty turned off
 PFDict = copy(IdiosyncDict)
 PFDict["PermShkStd"] = [0]
 PFDict["TranShkStd"] = [0]
 
 
 # %%
-# Solve consumers
+# Create and solve consumers
 IndShockConsumer = IndShockConsumerType(**IdiosyncDict)
 IndShockConsumer.cycles = 0 # Make this type have an infinite horizon
 IndShockConsumer.solve()
@@ -91,18 +91,29 @@ PFConsumer = IndShockConsumerType(**PFDict)
 PFConsumer.cycles = 0
 PFConsumer.solve()
 
+# %% [markdown]
+# ## Figure 1
+
 # %%
 # Figure 1
+
 def uP(agent, c):
+    '''
+    Computes the marginal utility of consumption for an agent with
+    CRRA utility at a consumption level c.
+    '''
     return( c**(-agent.CRRA) )
     
 def approxOmegaP(agent, a_min, a_max):
-    
-    # Find the m values generating a_min and a_max
-    aux = lambda m: m - agent.solution[0].cFunc(m)
-    
+    '''
+    Constructs a function that computes the discounted expected marginal value
+    of wealth next period w'(a) for a grid of end of period assets using the
+    fact that optimal consumption c() satisfies u'(c(m_t)) = w'_t(m_t - c(m_t))
+    '''
+
     # Find the level of resourses that would generate a_min and a_max as
     # as optimal responses
+    aux = lambda m: m - agent.solution[0].cFunc(m)
     m_min = root_scalar(lambda m: a_min - aux(m), x0 = a_min, x1 = a_max).root
     m_max = root_scalar(lambda m: a_max - aux(m), x0 = a_min, x1 = a_max).root
     
@@ -119,9 +130,10 @@ def approxOmegaP(agent, a_min, a_max):
     
     return(omegaP)
 
+
 m = 8
-m_min = 3
-a_grid = np.linspace(m_min, m*0.99, 50)
+a_min = 3
+a_grid = np.linspace(a_min, m*0.99, 50)
 
 # Approximate omega with and without uncertainty
 omegaP_uncert = approxOmegaP(IndShockConsumer, a_grid[0], a_grid[-1])
@@ -129,17 +141,19 @@ omegaP_PF = approxOmegaP(PFConsumer,  a_grid[0], a_grid[-1])
 
 # Find intercepts with marginal utility
 a_star1 = root_scalar(lambda a: omegaP_PF(a) - uP(PFConsumer, m - a),
-                      bracket = [m_min, m-0.01]).root
+                      bracket = [a_min, m-0.01]).root
 a_star2 = root_scalar(lambda a: omegaP_uncert(a) - uP(IndShockConsumer, m - a),
-                      bracket = [m_min, m-0.01]).root
- 
-
- 
+                      bracket = [a_min, m-0.01]).root
+                      
+# Line labels
 lab1 = '$\omega_t\'(a) = R \\beta E_t [v_{t+1}\'(aR + \\tilde{y}_{t+1})]$'
 lab2 = '$R \\beta v_{t+1}\'(aR + E_t[\\tilde{y}_{t+1}])$'
 lab3 = '$u\'(m_t-a)$'
-plt.figure()
+
+# Main lines
+
 # Omega uncertainty
+plt.figure()
 plt.plot(a_grid, omegaP_uncert(a_grid), label = lab1)
 # Omega Perfect foresight
 plt.plot(a_grid, omegaP_PF(a_grid), label = lab2)
@@ -158,23 +172,29 @@ plt.ylim(top = uP(PFConsumer, m - m*0.9))
 plt.xlabel('a')
 plt.legend()
 
-
+# %% [markdown]
+# ## Figure 2
 
 # %%
 # Figure 2
 
 # Define a function for the delta(m)=0 locus
-m0_locus = lambda m: m - (m-1)/(IdiosyncDict["Rfree"]/IdiosyncDict["PermGroFac"][0])
+m0_locus = lambda m: m - (m-1)/(IdiosyncDict["Rfree"]/
+                         IdiosyncDict["PermGroFac"][0])
 
 # Define grid of market resources
 m_max = 50
 m_grid = np.linspace(IndShockConsumer.solution[0].mNrmMin, m_max, 500)
 
-plt.figure()
+# Main lines
+
 # Uncertainty solution
-plt.plot(m_grid, IndShockConsumer.solution[0].cFunc(m_grid), label = '$c(m)$')
+plt.figure()
+plt.plot(m_grid, IndShockConsumer.solution[0].cFunc(m_grid),
+         label = '$c(m)$')
 # Perfect foresight solution
-plt.plot(m_grid, PFConsumer.solution[0].cFunc(m_grid), label = 'Perf. Foresight $c(m)$')
+plt.plot(m_grid, PFConsumer.solution[0].cFunc(m_grid),
+         label = 'Perf. Foresight $c(m)$')
 # Stable resource line
 plt.plot(m_grid, m0_locus(m_grid), label = 'Perm. Inc')
 # Target
@@ -191,5 +211,3 @@ plt.annotate('Target',
              arrowprops=dict(facecolor='black', shrink=0.05,
                              headwidth = 3, width = 0.5))
 plt.legend()
-
-# %%
