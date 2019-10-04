@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.2.4
+#       jupytext_version: 1.2.3
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -119,13 +119,20 @@ def approxOmegaP(agent, a_min, a_max):
     
     return(omegaP)
 
-m = 10
-m_min = 4
-a_grid = np.linspace(m_min, m*0.85, 50)
+m = 8
+m_min = 3
+a_grid = np.linspace(m_min, m*0.99, 50)
 
+# Approximate omega with and without uncertainty
 omegaP_uncert = approxOmegaP(IndShockConsumer, a_grid[0], a_grid[-1])
 omegaP_PF = approxOmegaP(PFConsumer,  a_grid[0], a_grid[-1])
 
+# Find intercepts with marginal utility
+a_star1 = root_scalar(lambda a: omegaP_PF(a) - uP(PFConsumer, m - a),
+                      bracket = [m_min, m-0.01]).root
+a_star2 = root_scalar(lambda a: omegaP_uncert(a) - uP(IndShockConsumer, m - a),
+                      bracket = [m_min, m-0.01]).root
+ 
 
  
 lab1 = '$\omega_t\'(a) = R \\beta E_t [v_{t+1}\'(aR + \\tilde{y}_{t+1})]$'
@@ -139,6 +146,15 @@ plt.plot(a_grid, omegaP_PF(a_grid), label = lab2)
 # Marginal utility
 plt.plot(a_grid, uP(IndShockConsumer, m - a_grid), label = lab3)
 
+# Intersection lines
+plt.plot([a_star1,a_star1],[0,uP(PFConsumer, m - a_star1)],'k--')
+plt.text(a_star1,0.1, '$a^*$')
+plt.plot([a_star2,a_star2],[0,uP(IndShockConsumer, m - a_star2)],'k--')
+plt.text(a_star2,0.1, '$a^{**}$')
+
+plt.ylim(bottom = 0)
+plt.xlim(right = m*0.9)
+plt.ylim(top = uP(PFConsumer, m - m*0.9))
 plt.xlabel('a')
 plt.legend()
 
@@ -173,8 +189,7 @@ plt.annotate('Target',
              xy = targ,
              xytext = (targ[0]+5, targ[1]-0.5),
              arrowprops=dict(facecolor='black', shrink=0.05,
-                             headwidth = 3, width = 0.5)
-            )
+                             headwidth = 3, width = 0.5))
 plt.legend()
 
 # %%
