@@ -25,6 +25,7 @@ mystr = lambda number : "{:.4f}".format(number)
 from copy import copy
 
 from scipy.interpolate import interp1d
+from scipy.optimize import root_scalar
 
 # %% {"code_folding": []}
 # Create two consumers, a perfect foresight one and one with shocks to income
@@ -39,9 +40,9 @@ IdiosyncDict={
     "PermGroFac" :[1.0],                  # Permanent income growth factor
     
     # Parameters that specify the income distribution over the lifecycle
-    "PermShkStd" : [0.2],                  # Standard deviation of log permanent shocks to income
+    "PermShkStd" : [0.0],                  # Standard deviation of log permanent shocks to income
     "PermShkCount" : 7,                    # Number of points in discrete approximation to permanent income shocks
-    "TranShkStd" : [0.4],                  # Standard deviation of log transitory shocks to income
+    "TranShkStd" : [0.8],                  # Standard deviation of log transitory shocks to income
     "TranShkCount" : 7,                    # Number of points in discrete approximation to transitory income shocks
     "UnempPrb" : 0.0,                     # Probability of unemployment while working
     "IncUnemp" : 0.0,                      # Unemployment benefits replacement rate
@@ -95,26 +96,37 @@ PFConsumer.solve()
 def uP(agent, c):
     return( c**(-agent.CRRA) )
     
-def approxOmegaP(agent, m0):
+def approxOmegaP(agent, a_min, a_max):
     
-    if m0 > 0:
-        m_grid = np.linspace(0.01,10*m0,1000)
-    else:
-        m_grid = np.linspace(m0,10,1000)
-        
+    # Find the m values generating a_min and a_max
+    aux = lambda m: m - agent.solution[0].cFunc(m)
+    
+    # Find the level of resourses that would generate a_min and a_max as
+    # as optimal responses
+    m_min = root_scalar(lambda m: a_min - aux(m), x0 = a_min, x1 = a_max).root
+    m_max = root_scalar(lambda m: a_max - aux(m), x0 = a_min, x1 = a_max).root
+    
+    # Create grids
+    m_grid = np.linspace(min(m_min, m_max)-1, max(m_min, m_max)+1, 1000)
     c_grid = agent.solution[0].cFunc(m_grid)
     a_grid = m_grid - c_grid
-    omega_grid = uP(agent, c_grid)
-    omega = interp1d(a_grid, omega_grid, kind='cubic')
     
-    return(omega)
-
-target = IndShockConsumer.solution[0].mNrmSS
-omegaP_uncert = approxOmegaP(IndShockConsumer, target)
-omegaP_PF = approxOmegaP(PFConsumer, target)
+    # Omega prime is U' at the optimal C.
+    omega_grid = uP(agent, c_grid)
+    
+    # Construct interpolating function
+    omegaP = interp1d(a_grid, omega_grid, kind='cubic')
+    
+    return(omegaP)
 
 m = 10
-a_grid = np.linspace(4, m*0.95, 50)
+m_min = 4
+a_grid = np.linspace(m_min, m*0.85, 50)
+
+omegaP_uncert = approxOmegaP(IndShockConsumer, a_grid[0], a_grid[-1])
+omegaP_PF = approxOmegaP(PFConsumer,  a_grid[0], a_grid[-1])
+
+
  
 lab1 = '$\omega_t\'(a) = R \\beta E_t [v_{t+1}\'(aR + \\tilde{y}_{t+1})]$'
 lab2 = '$R \\beta v_{t+1}\'(aR + E_t[\\tilde{y}_{t+1}])$'
