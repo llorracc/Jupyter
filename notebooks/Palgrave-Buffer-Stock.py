@@ -102,13 +102,22 @@ PFConsumer.solve()
 # ## Figure 1: Marginal Utility of Assets and Consumption
 
 # %% [markdown]
-# Consider an agent facing the following dynamic problem expressed in recursive form
+# Consider an agent facing the following dynamic problem expressed in recursive form:
+#
 # \begin{equation}
 # \begin{split}
 # v_t(m_t) =& \max_{c_t} \{u(c_t) + \beta \mathbb{E}_t[v_{t+1}(R a_t + \tilde{y}_{t+1})] \}\\
-# & s.t \quad a_t = m_t - c_t
+# & s.t \quad a_t = m_t - c_t,
 # \end{split}
 # \end{equation}
+#
+# where $c_t$ represents consumption, $m_t$ beginning-of-period resources, $a_t$ end-of-period resources, and $\tilde{y}_{t+1}$ non-capital income in the next period, which is random from the perspective of this period.
+#
+# The consumer chooses $c_t$ balancing two forces:
+# - The desire to consume his resources now, captured by $u(c_t)$.
+# - The benefit that he gets from saving his resources for next period, which we represent with $\omega(a_t)=\beta \mathbb{E}_t[v_{t+1}(R a_t + \tilde{y}_{t+1})]$.
+#
+# Under standard assumptions, a requirement for optimality is that $$u'(m_t - a_t) = \omega'(a_t).$$
 
 # %%
 # Figure 1
