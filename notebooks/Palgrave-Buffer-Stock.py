@@ -99,7 +99,16 @@ PFConsumer.cycles = 0
 PFConsumer.solve()
 
 # %% [markdown]
-# ## Figure 1
+# ## Figure 1: Marginal Utility of Assets and Consumption
+
+# %% [markdown]
+# Consider an agent facing the following dynamic problem expressed in recursive form
+# \begin{equation}
+# \begin{split}
+# v_t(m_t) =& \max_{c_t} \{u(c_t) + \beta \mathbb{E}_t[v_{t+1}(R a_t + \tilde{y}_{t+1})] \}\\
+# & s.t \quad a_t = m_t - c_t
+# \end{split}
+# \end{equation}
 
 # %%
 # Figure 1
