@@ -43,7 +43,7 @@ IdiosyncDict["UnempPrb"] = 0
 IdiosyncDict["vFuncBool"] = True
 
 
-# Create a copy with uncertainty turned off
+# Create a copy with income uncertainty turned off
 PFDict = copy(IdiosyncDict)
 PFDict["PermShkStd"] = [0]
 PFDict["TranShkStd"] = [0]
@@ -72,29 +72,29 @@ def uP(agent, c):
     '''
     return( c**(-agent.CRRA) )
     
-def approxOmegaP(agent, a_min, a_max):
+def approxOmegaP(agent):
     '''
     Constructs a function that computes the discounted expected marginal value
     of wealth next period w'(a) for a grid of end of period assets using the
     fact that optimal consumption c() satisfies u'(c(m_t)) = w'_t(m_t - c(m_t))
     '''
-
-    # Find the level of resourses that would generate a_min and a_max as
-    # as optimal responses
+    # Take the end-of-period assets grid from the consumer
+    agrid = agent.aXtraGrid
+    a_min = agrid[0]
+    a_max = agrid[-1]
+    # For each a, we need to find the implied m that generates it
     aux = lambda m: m - agent.solution[0].cFunc(m)
-    m_min = root_scalar(lambda m: a_min - aux(m), x0 = a_min, x1 = a_max).root
-    m_max = root_scalar(lambda m: a_max - aux(m), x0 = a_min, x1 = a_max).root
+    m_grid = np.array([root_scalar(lambda m: a - aux(m), x0 = a_min, x1 = a_max).root
+                       for a in agrid])
     
-    # Create grids
-    m_grid = np.linspace(min(m_min, m_max)-1, max(m_min, m_max)+1, 1000)
+    # Then we can get consumption
     c_grid = agent.solution[0].cFunc(m_grid)
-    a_grid = m_grid - c_grid
+    # And with consmption, omega, since
+    # omega prime is U' at the optimal C.
+    omegaP_grid = uP(agent, c_grid)
     
-    # Omega prime is U' at the optimal C.
-    omega_grid = uP(agent, c_grid)
-    
-    # Construct interpolating function
-    omegaP = interp1d(a_grid, omega_grid, kind='cubic')
+    # We finally interpolate
+    omegaP = interp1d(agrid, omegaP_grid, kind='cubic')
     
     return(omegaP)
 
@@ -104,8 +104,8 @@ a_min = 3
 a_grid = np.linspace(a_min, m*0.99, 50)
 
 # Approximate omega with and without uncertainty
-omegaP_uncert = approxOmegaP(IndShockConsumer, a_grid[0], a_grid[-1])
-omegaP_PF = approxOmegaP(PFConsumer,  a_grid[0], a_grid[-1])
+omegaP_uncert = approxOmegaP(IndShockConsumer)
+omegaP_PF = approxOmegaP(PFConsumer)
 
 # Find intercepts with marginal utility
 a_star1 = root_scalar(lambda a: omegaP_PF(a) - uP(PFConsumer, m - a),
