@@ -101,7 +101,7 @@ def approxOmegaP(agent):
 
 m = 8
 a_min = 3
-a_grid = np.linspace(a_min, m*0.99, 50)
+a_grid = np.linspace(a_min, m*0.85, 50)
 
 # Approximate omega with and without uncertainty
 omegaP_uncert = approxOmegaP(IndShockConsumer)
@@ -135,8 +135,6 @@ plt.plot([a_star2,a_star2],[0,uP(IndShockConsumer, m - a_star2)],'k--')
 plt.text(a_star2,0.1, '$a^{**}$')
 
 plt.ylim(bottom = 0)
-plt.xlim(right = m*0.9)
-plt.ylim(top = uP(PFConsumer, m - m*0.9))
 plt.xlabel('a')
 plt.legend()
 
