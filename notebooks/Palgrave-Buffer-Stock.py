@@ -13,6 +13,13 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# # Precautionary Saving and Precautionary Wealth
+#
+# ### A notebook by [Mateo Velasquez-Giraldo](https://github.com/Mv77/)
+#
+# This notebook reproduces the figures in Christopher D. Carroll and Miles S. Kimball's entry on [Precautionary Saving and Precautionary Wealth](http://www.econ2.jhu.edu/people/ccarroll/PalgravePrecautionary.pdf) in [The New Palgrave Dictionary of Economics](https://www.palgrave.com/gp/book/9781349951888), using tools from the [Econ-ARK](https://econ-ark.org/) project.
+
 # %%
 # Setup
 from HARK.ConsumptionSaving.ConsIndShockModel import IndShockConsumerType
