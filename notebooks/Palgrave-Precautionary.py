@@ -20,7 +20,7 @@
 #
 # This notebook reproduces the figures in Christopher D. Carroll and Miles S. Kimball's entry on [Precautionary Saving and Precautionary Wealth](http://www.econ2.jhu.edu/people/ccarroll/PalgravePrecautionary.pdf) in [The New Palgrave Dictionary of Economics](https://www.palgrave.com/gp/book/9781349951888), using tools from the [Econ-ARK](https://econ-ark.org/) project.
 
-# %%
+# %% {"code_folding": [0]}
 # Setup
 from HARK.ConsumptionSaving.ConsIndShockModel import IndShockConsumerType
 
@@ -34,7 +34,8 @@ from scipy.interpolate import interp1d
 from scipy.optimize import root_scalar
 
 # %% {"code_folding": [0]}
-# Create two consumers, a perfect foresight one and one with shocks to income
+# Define parameters for two consumers,
+# a perfect foresight one and one with shocks to income
 
 # Import standard parameters
 from HARK.ConsumptionSaving.ConsumerParameters import init_idiosyncratic_shocks
@@ -56,7 +57,7 @@ PFDict["PermShkStd"] = [0]
 PFDict["TranShkStd"] = [0]
 
 
-# %%
+# %% {"code_folding": [0]}
 # Create and solve consumers
 IndShockConsumer = IndShockConsumerType(**IdiosyncDict)
 IndShockConsumer.cycles = 0 # Make this type have an infinite horizon
@@ -179,7 +180,7 @@ plt.legend()
 # 2. The difference between them vanishes as market resources approach infinity.
 # 3. Under uncertain future income, the consumption function is concave.
 
-# %%
+# %% {"code_folding": [0]}
 # Figure 2
 
 # Define a function for the delta(m)=0 locus
