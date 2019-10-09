@@ -6,12 +6,19 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.2.3
+#       jupytext_version: 1.2.4
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
 #     name: python3
 # ---
+
+# %% [markdown]
+# # Precautionary Saving and Precautionary Wealth
+#
+# ### A notebook by [Mateo Velasquez-Giraldo](https://github.com/Mv77/)
+#
+# This notebook reproduces the figures in Christopher D. Carroll and Miles S. Kimball's entry on [Precautionary Saving and Precautionary Wealth](http://www.econ2.jhu.edu/people/ccarroll/PalgravePrecautionary.pdf) in [The New Palgrave Dictionary of Economics](https://www.palgrave.com/gp/book/9781349951888), using tools from the [Econ-ARK](https://econ-ark.org/) project.
 
 # %%
 # Setup
@@ -26,7 +33,7 @@ from copy import copy
 from scipy.interpolate import interp1d
 from scipy.optimize import root_scalar
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Create two consumers, a perfect foresight one and one with shocks to income
 
 # Import standard parameters
@@ -60,9 +67,33 @@ PFConsumer.cycles = 0
 PFConsumer.solve()
 
 # %% [markdown]
-# ## Figure 1
+# ## Figure 1: Marginal Utility of Assets and Consumption
 
-# %%
+# %% [markdown]
+# Consider an agent facing the following dynamic problem expressed in recursive form:
+#
+# \begin{equation}
+# \begin{split}
+# v_t(m_t) =& \max_{c_t} \{u(c_t) + \beta \mathbb{E}_t[v_{t+1}(R a_t + \tilde{y}_{t+1})] \}\\
+# & s.t \quad a_t = m_t - c_t,
+# \end{split}
+# \end{equation}
+#
+# where $c_t$ represents consumption, $m_t$ beginning-of-period resources, $a_t$ end-of-period resources, and $\tilde{y}_{t+1}$ non-capital income in the next period, which is random from the perspective of this period.
+#
+# The consumer chooses $c_t$ balancing two forces:
+# - The desire to consume his resources now, captured by $u(c_t)$.
+# - The benefit that he gets from saving his resources for next period, which we represent with $\omega(a_t)=\beta \mathbb{E}_t[v_{t+1}(R a_t + \tilde{y}_{t+1})]$.
+#
+# Under standard assumptions, a requirement for optimality is that $$u'(m_t - a_t) = \omega'(a_t).$$
+#
+# Figure 1 shows that uncertainty shifts up the expected marginal value of
+# resources on the next period, moving savings from $a^*$ (which would be
+# observed if income were certain at $\mathbb{E}_t[\tilde{y}_{t+1}]$) to 
+# $a^{**}$. This increase is the precautionary saving induced by the uncertainty 
+# around income.
+
+# %% {"code_folding": [0]}
 # Figure 1
 
 def uP(agent, c):
@@ -140,6 +171,13 @@ plt.legend()
 
 # %% [markdown]
 # ## Figure 2
+
+# %% [markdown]
+# Figure 2 compares optimal consumption with and without income uncertainty.
+# The three most important facts to note are:
+# 1. Consumption under uncertainty is always lower than its perfect-foresight counterpart.
+# 2. The difference between them vanishes as market resources approach infinity.
+# 3. Under uncertain future income, the consumption function is concave.
 
 # %%
 # Figure 2
