@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.2.3
+#       jupytext_version: 1.2.4
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -34,7 +34,7 @@ from copy import copy
 from scipy.interpolate import interp1d
 from scipy.optimize import root_scalar
 
-# %% {"code_folding": []}
+# %% {"code_folding": [0]}
 # Create two consumers, a perfect foresight one and one with shocks to income
 
 # Standard parameters
@@ -118,8 +118,14 @@ PFConsumer.solve()
 # - The benefit that he gets from saving his resources for next period, which we represent with $\omega(a_t)=\beta \mathbb{E}_t[v_{t+1}(R a_t + \tilde{y}_{t+1})]$.
 #
 # Under standard assumptions, a requirement for optimality is that $$u'(m_t - a_t) = \omega'(a_t).$$
+#
+# Figure 1 shows that uncertainty shifts up the expected marginal value of
+# resources on the next period, moving savings from $a^*$ (which would be
+# observed if income were certain at $\mathbb{E}_t[\tilde{y}_{t+1}]$) to 
+# $a^{**}$. This increase is the precautionary saving induced by the uncertainty 
+# around income.
 
-# %%
+# %% {"code_folding": [0]}
 # Figure 1
 
 def uP(agent, c):
@@ -199,6 +205,13 @@ plt.legend()
 
 # %% [markdown]
 # ## Figure 2
+
+# %% [markdown]
+# Figure 2 compares optimal consumption with and without income uncertainty.
+# The three most important facts to note are:
+# 1. Consumption under uncertainty is always lower than its perfect-foresight counterpart.
+# 2. The difference between them vanishes as market resources approach infinity.
+# 3. Under uncertain future income, the consumption function is concave.
 
 # %%
 # Figure 2
