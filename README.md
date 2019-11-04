@@ -1,7 +1,6 @@
 # Centralized Repo of Public Jupyter Notebooks
 
-This repo was created as a place to put notebooks used for teaching, presentations,
-and other purposes where public availability of the notebook is convenient 
+This repo was created as a place to put notebooks used for teaching, presentations, and other purposes where public availability of the notebook is convenient 
 
 ## Running with MyBinder 
 
@@ -12,8 +11,8 @@ The notebooks should be launchable by [![Binder](https://mybinder.org/badge.svg)
 ### Option 1: With Jupyter
 
 0. [Install jupyter](https://jupyter.org/install).
-1. Clone `DemArk` to the folder of your choice
-2. Run `pip install -r binder/requirements.txt` to install dependencies
+1. [Clone](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) `DemARK` to the local folder of your choice
+2. In the new folder, run `pip install -r binder/requirements.txt` to install dependencies
 3. Enable notebook extensions.
 
    **On Linux/macOS:**
