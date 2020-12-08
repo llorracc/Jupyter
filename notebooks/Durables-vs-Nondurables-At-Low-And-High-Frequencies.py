@@ -5,89 +5,36 @@
 #     text_representation:
 #       extension: .py
 #       format_name: percent
-#       format_version: '1.1'
-#       jupytext_version: 0.8.3
+#       format_version: '1.2'
+#       jupytext_version: 1.2.4
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
 #     name: python3
-#   language_info:
-#     codemirror_mode:
-#       name: ipython
-#       version: 3
-#     file_extension: .py
-#     mimetype: text/x-python
-#     name: python
-#     nbconvert_exporter: python
-#     pygments_lexer: ipython3
-#     version: 3.6.6
-#   latex_envs:
-#     LaTeX_envs_menu_present: true
-#     autoclose: false
-#     autocomplete: true
-#     bibliofile: biblio.bib
-#     cite_by: apalike
-#     current_citInitial: 1
-#     eqLabelWithNumbers: true
-#     eqNumInitial: 1
-#     hotkeys:
-#       equation: Ctrl-E
-#       itemize: Ctrl-I
-#     labels_anchors: false
-#     latex_user_defs: false
-#     report_style_numbering: false
-#     user_envs_cfg: false
-#   varInspector:
-#     cols:
-#       lenName: 16
-#       lenType: 16
-#       lenVar: 40
-#     kernels_config:
-#       python:
-#         delete_cmd_postfix: ''
-#         delete_cmd_prefix: 'del '
-#         library: var_list.py
-#         varRefreshCmd: print(var_dic_list())
-#       r:
-#         delete_cmd_postfix: ') '
-#         delete_cmd_prefix: rm(
-#         library: var_list.r
-#         varRefreshCmd: 'cat(var_dic_list()) '
-#     types_to_exclude:
-#     - module
-#     - function
-#     - builtin_function_or_method
-#     - instance
-#     - _Feature
-#     window_display: false
 # ---
 
 # %% [markdown]
 # # Durables vs Non Durables At Low And High Frequencies
 
-# %% {"code_folding": [0]}
+# %% {"code_folding": []}
+# !pip install numpy
+# !pip install matplotlib 
+# !pip install pandas
+# !pip install pandas_datareader
+# !pip install datetime
+# !pip install seaborn
+
 # Some initial setup
-import sys
-import os
 from matplotlib import pyplot as plt
 import numpy as np
 plt.style.use('seaborn-darkgrid')
-palette = plt.get_cmap('Dark2')
 import pandas as pd
-pd.core.common.is_list_like = pd.api.types.is_list_like
-import datetime as dt
+import pandas_datareader.data as web
+import datetime
 import seaborn as sns
-import scipy.stats as stats
-import statsmodels.formula.api as sm
-import matplotlib.pyplot
-import pylab
-from copy  import deepcopy
 
 # %% {"code_folding": [0]}
 # Import Quarterly data from Fred using Data Reader
-import pandas_datareader.data as web
-
-import datetime
 
 start = datetime.datetime(1947, 1, 1) #beginning of series
 start1 = datetime.datetime(1956, 10, 1) #beginning of series
